@@ -51,7 +51,8 @@
     {
         attrs = string.Empty;
         innerBody = string.Empty;
-        var editorName = "el-input";
+        var editorName = col.Editor;
+        if (String.IsNullOrWhiteSpace(editorName)) editorName = "el-input";
         if (!string.IsNullOrWhiteSpace(col.DictTypeCode))
         {
             editorName = "el-select";
@@ -125,10 +126,10 @@
         @if(gen.GenBatchDelete || gen.GenBatchSoftDelete){
         @:<el-form-item v-auths="[perms.batDelete, perms.batSoftDelete]" >
         if(gen.GenBatchSoftDelete){
-        @:  <el-button v-auth="perms.batSoftDelete" type="warning" :disabled="state.sels.length==0" :placement="'bottom-end'" @(at)click="onBatchDelete" icon="ele-DeleteFilled">批量软删除</el-button>
+        @:  <el-button v-auth="perms.batSoftDelete" type="warning" :disabled="state.sels.length==0" :placement="'bottom-end'" @(at)click="onBatchSoftDelete" icon="ele-DeleteFilled">批量软删除</el-button>
         }
         if(gen.GenBatchDelete){
-        @:  <el-button v-auth="perms.batSoftDelete" type="danger" :disabled="state.sels.length==0" :placement="'bottom-end'" @(at)click="onBatchDelete" icon="ele-Delete">批量删除</el-button>
+        @:  <el-button v-auth="perms.batDelete" type="danger" :disabled="state.sels.length==0" :placement="'bottom-end'" @(at)click="onBatchDelete" icon="ele-Delete">批量删除</el-button>
         }
         @:</el-form-item>
         }
@@ -352,7 +353,12 @@ const defaultToAdd = (): @(entityNamePc)AddInput => {
 
 const onQuery = async () => {
   state.listLoading = true
-  const res = await new @(apiName)().getPage(state.pageInput)
+  
+  var queryParams = state.pageInput;
+  queryParams.filter = state.filterModel;
+  queryParams.dynamicFilter = {};
+
+  const res = await new @(apiName)().getPage(queryParams)
 
   state.@(entityNameCc)s = res?.data?.list ?? []
   state.total = res?.data?.total ?? 0
@@ -429,7 +435,7 @@ const submitData = async (editData: @(entityNamePc)AddInput | @(entityNamePc)Upd
 @if(gen.GenBatchDelete){
 @:const onBatchDelete = async () => {
 @:  proxy.$modal?.confirmDelete(`确定要删除选择的${state.sels.length}条记录？`).then(async () =>{
-@:    const rst = await new @(apiName)().batchDelete({ ids: state.sels.map(item=>item.id) }, { loading: true, showSuccessMessage: true })
+@:    const rst = await new @(apiName)().batchDelete(state.sels.map(item=>item.id), { loading: true, showSuccessMessage: true })
 @:    if(rst?.success){
 @:      onQuery()
 @:    }
@@ -451,7 +457,7 @@ const submitData = async (editData: @(entityNamePc)AddInput | @(entityNamePc)Upd
 @if(gen.GenBatchSoftDelete){
 @:const onBatchSoftDelete = async () => {
 @:  proxy.$modal?.confirmDelete(`确定要将选择的${state.sels.length}条记录移入回收站？`).then(async () =>{
-@:    const rst = await new @(apiName)().batchSoftDelete({ ids: state.sels.map(item=>item.id) }, { loading: true, showSuccessMessage: true })
+@:    const rst = await new @(apiName)().batchSoftDelete(state.sels.map(item=>item.id), { loading: true, showSuccessMessage: true })
 @:    if(rst?.success){
 @:      onQuery()
 @:    }

@@ -3,16 +3,13 @@ using FreeSql;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
-using RazorEngine.Compilation.ImpromptuInterface.InvokeExt;
 using RazorEngine.Templating;
-using System.Collections.ObjectModel;
 using System.Data;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 using ZhonTai.Admin.Core.Attributes;
 using ZhonTai.Admin.Core.Configs;
-using ZhonTai.Admin.Core.Consts;
 using ZhonTai.Admin.Core.Dto;
 using ZhonTai.Admin.Domain.Api;
 using ZhonTai.Admin.Domain.CodeGen;
@@ -72,11 +69,6 @@ public partial class CodeGenService : BaseService, ICodeGenService, IDynamicApi
 
         var getOutput = new Func<IEnumerable<CodeGenGetOutput>>(() =>
         {
-            //var gens = _codeGenRepository.Where(w => w.DbKey == dbkey)
-            //.IncludeMany<CodeGenColumnEntity>(c => c.Columns.Where(w => w.CodeGenId == c.Id))
-            //.ToList();
-
-
             var tables = fSql.DbFirst.GetTablesByDatabase()
                 .Select(s => new CodeGenGetOutput
                 {
@@ -88,7 +80,7 @@ public partial class CodeGenService : BaseService, ICodeGenService, IDynamicApi
                     {
                         ColumnName = c.Name,
                         Comment = c.Comment,
-                        Title = "" + c.Coment,
+                        Title = c.Comment,
                         NetType = fSql.DbFirst.GetCsType(c).TrimEnd('?'),
                         DbType = c.DbTypeText,
                         IsNullable = c.IsNullable,
@@ -96,23 +88,6 @@ public partial class CodeGenService : BaseService, ICodeGenService, IDynamicApi
                         Length = "" + c.MaxLength
                     }).ToList()
                 }).ToList();
-
-            //foreach (var g in gens)
-            //{
-            //    var tab = tables.Where(f => f.TableName == g.TableName).FirstOrDefault();
-            //    if (tab == null) continue;
-
-            //    Mapper.Map(g, tab);
-            //    if (tab.Columns != null && tab.Columns.Any())
-            //    {
-            //        foreach (var c in g.Columns)
-            //        {
-            //            var col = tab.Columns.Where(f => f.ColumnName == c.ColumnName).FirstOrDefault();
-            //            if (col == null) continue;
-            //            Mapper.Map(c, col);
-            //        }
-            //    }
-            //}
 
             return tables;
         });
@@ -458,7 +433,6 @@ public partial class CodeGenService : BaseService, ICodeGenService, IDynamicApi
     {
         var gen = await _codeGenRepository
             .Where(w => w.Id == id)
-            //.IncludeMany<CodeGenColumnEntity>(c => c.Columns.Where(w => w.CodeGenId == c.Id))
             .FirstAsync();
         if (gen == null)
             throw ResultOutput.Exception(msg: "配置数据不存在。");
@@ -480,7 +454,6 @@ public partial class CodeGenService : BaseService, ICodeGenService, IDynamicApi
                 .Concat(AppDomain.CurrentDomain.GetAssemblies());
 
             var refs = assemblies.SelectMany(s => s.GetReferencedAssemblies().Select(Assembly.Load));
-
 
             assemblies = assemblies.Concat(refs)
                 .Where(w => w != null &&
