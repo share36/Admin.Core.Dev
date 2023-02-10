@@ -86,6 +86,7 @@
 
     var dictCodes = gen.Fields.Where(w => "dict" == w.EffectType).Select(s => s.DictTypeCode);// editors.Any(a => a == "my-select-dictionary");
     var hasDict = dictCodes.Any();
+    var includeFields = gen.Fields.Where(w => !String.IsNullOrWhiteSpace(w.IncludeEntity));
 
     //var hasRole = editors.Any(a => a == "my-role");
     //var hasUser = editors.Any(a => a == "my-user");
@@ -216,8 +217,32 @@ import { PageInput@(entityNamePc)GetPageInput, @(entityNamePc)GetPageInput, @(en
 @if(gen.GenGetList){
 @:  @(entityNamePc)GetListInput, @(entityNamePc)GetListOutput,
 }
+@{
+    if (includeFields.Any())
+    {
+        foreach(var incField in includeFields)
+        {
+            if (incField.IncludeMode == 1)
+            {
+@:  @(incField.IncludeEntity.Replace("Entity", ""))GetListOutput,
+            }
+            else
+            {
+@:  @(incField.IncludeEntity.Replace("Entity", ""))GetOutput,                    
+            }
+        }
+    }
+}
 } from '/@(at)/api/@(areaNameKc)/data-contracts'
 import { @(apiName) } from '/@(at)/api/@(areaNameKc)/@(entityNamePc)'
+@if (includeFields.Any())
+{
+    foreach(var incField in includeFields)
+    {
+        var incEntityName = incField.IncludeEntity.Replace("Entity", "");
+@:import { @(incEntityName)Api } from '/@(at)/api/@(areaNameKc)/@(incEntityName)'
+    }
+}
 import eventBus from '/@(at)/utils/mitt'
 import { auth, auths, authAll } from '/@(at)/utils/authFunction'
 
@@ -404,7 +429,7 @@ const onDelete = async (row: @(entityNamePc)GetOutput) => {
     })
 }
 
-const onAddPost = async (addData: @(entityNamePc)UpdateInput) => {
+const onAddPost = async (addData: @(entityNamePc)AddInput) => {
   const res = await new @(apiName)().add(addData, { loading: true, showSuccessMessage: true })
   if (res?.success) {
     onQuery()

@@ -109,6 +109,31 @@ public class CodeGenEntity : EntityBase
     [Column(StringLength = 256)]
     public String? Usings { get; set; }
 
+    /// <summary>
+    /// 生成Entity实体类
+    /// </summary>
+    public Boolean GenEntity { get; set; }
+    /// <summary>
+    /// 生成Repository仓储类
+    /// </summary>
+    public Boolean GenRepository { get; set; }
+    /// <summary>
+    /// 生成Service服务类
+    /// </summary>
+    public Boolean GenService { get; set; }
+
+    /// <summary>
+    /// 生成新增服务
+    /// </summary>
+    public Boolean GenAdd { get; set; } = true;
+    /// <summary>
+    /// 生成更新服务
+    /// </summary>
+    public Boolean GenUpdate { get; set; } = true;
+    /// <summary>
+    /// 新增删除服务
+    /// </summary>
+    public Boolean GenDelete { get; set; } = true;
 
     /// <summary>
     /// 生成列表查询服务

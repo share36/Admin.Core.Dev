@@ -19,15 +19,15 @@ namespace @(gen.Namespace).Services.@(entityNamePc)
 {
     public interface I@(entityNamePc)Service
     {
-        Task<long> AddAsync(@(entityNamePc)AddInput input);
-
         Task<@(entityNamePc)GetOutput> GetAsync(long id);
+        
+        Task<PageOutput<@(entityNamePc)GetPageOutput>> GetPageAsync(PageInput<@(entityNamePc)GetPageInput> input);
+        
+        Task<long> AddAsync(@(entityNamePc)AddInput input);
 
         Task UpdateAsync(@(entityNamePc)UpdateInput input);
 
         Task<bool> DeleteAsync(long id);
-
-        Task<PageOutput<@(entityNamePc)GetPageOutput>> GetPageAsync(PageInput<@(entityNamePc)GetPageInput> input);
     @if(gen.GenGetList){
         @:
         @:Task<IEnumerable<@(entityNamePc)GetListOutput>> GetListAsync(@(entityNamePc)GetListInput input);
@@ -49,22 +49,6 @@ namespace @(gen.Namespace).Services.@(entityNamePc)
 
 namespace @(gen.Namespace).Services.@(entityNamePc).Dto
 {
-    /// <summary>@(gen.BusName)新增输入</summary>
-    public partial class @(entityNamePc)AddInput {
-        @foreach (var col in gen.Fields.Where(w=>w.WhetherAdd))
-        {
-            if (!col.IsIgnoreColumn())
-            {
-        @:/// <summary>@(col.Title)</summary>
-                if (!col.IsNullable)
-                {
-        @:[Required(ErrorMessage = "@((!String.IsNullOrEmpty(col.Title)?col.Title:col.ColumnName)+"不能为空")")]
-                }
-        @:@col.PropCs()                                                    
-             }
-        }
-    }
-
     /// <summary>@(gen.BusName)查询结果输出</summary>
     public partial class @(entityNamePc)GetOutput {
         @if (!String.IsNullOrWhiteSpace(gen.BaseEntity))
@@ -133,6 +117,25 @@ namespace @(gen.Namespace).Services.@(entityNamePc).Dto
             }
         }
     }
+    
+@if(gen.GenAdd){
+@:    /// <summary>@(gen.BusName)新增输入</summary>
+@:    public partial class @(entityNamePc)AddInput {
+        @foreach (var col in gen.Fields.Where(w=>w.WhetherAdd))
+        {
+            if (!col.IsIgnoreColumn())
+            {
+@:        /// <summary>@(col.Title)</summary>
+                if (!col.IsNullable)
+                {
+@:        [Required(ErrorMessage = "@((!String.IsNullOrEmpty(col.Title)?col.Title:col.ColumnName)+"不能为空")")]
+                }
+@:        @col.PropCs()                                                    
+             }
+        }
+@:    }
+}
+
 
     /// <summary>@(gen.BusName)更新数据输入</summary>
     public partial class @(entityNamePc)UpdateInput {

@@ -443,7 +443,7 @@ public partial class CodeGenService : BaseService, ICodeGenService, IDynamicApi
             Path.Combine("Repositories", gen.EntityName, $"{gen.EntityName}Repository.cs"),
             Path.Combine("Services", gen.EntityName, $"I{gen.EntityName}Service.cs"),
             Path.Combine("Services", gen.EntityName, $"{gen.EntityName}Service.cs")
-        }.Select(s => Path.Combine(gen.BackendOut, s));
+        }.Select(s => Path.Combine(gen.BackendOut, s)).Where(w => System.IO.File.Exists(w));
 
         var excludes = new String[] { "", "System.Threading.AccessControl" };
 
