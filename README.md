@@ -68,7 +68,7 @@ Api分区：AdminCore 的 Api Area
 #### 前端部分
 - 复制 [admin.ui.plus.dev](https://github.com/share36/Admin.Core.Dev) 的 views 文件到前端项目
 - 修改前端 /gen/gen-api.js 文件,添加代码生成器模块配置，执行`npm run gen:api`即可生成dev模块的接口模型定义的相关代码
-    ``` json
+    ``` js
     [
         {
             output: path.resolve(__dirname, '../src/api/admin'),
@@ -82,7 +82,7 @@ Api分区：AdminCore 的 Api Area
     ]
     ```
 - 修改/src/router/route.ts,将生成器节点添加到 '/example'前面即可
-  ```json
+  ```js
   [
         {
           path: '/dev',
