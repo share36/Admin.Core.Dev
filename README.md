@@ -66,7 +66,7 @@ Api分区：AdminCore 的 Api Area
 - 运行ZhonTai.Host,可获得dev模块的swagger地址：http://localhost:8000/admin/swagger/dev/swagger.json
 - 
 #### 前端部分
-- 复制 [admin.ui.plus.dev](https://github.com/share36/Admin.Core.Dev) 的 views 文件到前端项目
+- 复制 [admin.ui.plus.dev](https://github.com/share36/admin.ui.plus.dev) 的 views 文件到前端项目
 - 修改前端 /gen/gen-api.js 文件,添加代码生成器模块配置，执行`npm run gen:api`即可生成dev模块的接口模型定义的相关代码
     ``` js
     [
