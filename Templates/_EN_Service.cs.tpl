@@ -26,6 +26,7 @@ using ZhonTai.Admin.Core.Dto;
 using ZhonTai.Admin.Services;
 using ZhonTai.DynamicApi;
 using ZhonTai.DynamicApi.Attributes;
+using ZhonTai.Admin.Domain.Dict;
 
 using @(gen.Namespace).Domain.@(entityNamePc);
 using @(gen.Namespace).Services.@(entityNamePc).Dto;
@@ -98,9 +99,9 @@ namespace @(gen.Namespace).Services.@(entityNamePc)
 
                             var usedDicCols = gen.Fields.Where(w => !string.IsNullOrWhiteSpace(w.DictTypeCode));
 
-            @:var dictRepo = LazyGetRequiredService<ZhonTai.Admin.Domain.Dictionary.IDictionaryRepository>();
+            @:var dictRepo = LazyGetRequiredService<IDictRepository>();
             @:var dictList = await dictRepo.Where(w => new string[] { @(string.Concat("\"" , string.Join("\", \"", usedDicCols.Select(s=>s.DictTypeCode)), "\"")) }
-            @:    .Contains(w.DictionaryType.Code)).ToListAsync();
+            @:    .Contains(w.DictType.Code)).ToListAsync();
 
             @:
             @:list = list.Select(s =>
@@ -108,7 +109,7 @@ namespace @(gen.Namespace).Services.@(entityNamePc)
                             foreach(var col in usedDicCols)
                             {
 
-            @:    s.@(col.ColumnName.NamingPascalCase())DictName = dictList.FirstOrDefault(f => f.DictionaryType.Code == "@(col.DictTypeCode)" && f.Code == @if(col.IsNumColumn())@("\"\" + ")s.@(col.ColumnName.NamingPascalCase()))?.Name;
+            @:    s.@(col.ColumnName.NamingPascalCase())DictName = dictList.FirstOrDefault(f => f.DictType.Code == "@(col.DictTypeCode)" && f.Code == @if(col.IsNumColumn())@("\"\" + ")s.@(col.ColumnName.NamingPascalCase()))?.Name;
                                 
                             }
             @:
@@ -175,9 +176,9 @@ namespace @(gen.Namespace).Services.@(entityNamePc)
 
                             var usedDicCols = gen.Fields.Where(w => !string.IsNullOrWhiteSpace(w.DictTypeCode));
 
-            @:var dictRepo = LazyGetRequiredService<ZhonTai.Admin.Domain.Dictionary.IDictionaryRepository>();
+            @:var dictRepo = LazyGetRequiredService<IDictRepository>();
             @:var dictList = await dictRepo.Where(w => new string[] { @(string.Concat("\"" , string.Join("\", \"", usedDicCols.Select(s=>s.DictTypeCode)), "\"")) }
-            @:    .Contains(w.DictionaryType.Code)).ToListAsync();
+            @:    .Contains(w.DictType.Code)).ToListAsync();
 
 
             @:return list.Select(s =>
@@ -185,7 +186,7 @@ namespace @(gen.Namespace).Services.@(entityNamePc)
                             foreach(var col in usedDicCols)
                             {
 
-            @:    s.@(col.ColumnName.NamingPascalCase())DictName = dictList.FirstOrDefault(f => f.DictionaryType.Code == "@(col.DictTypeCode)" && f.Code == @if(col.IsNumColumn())@("\"\" + ")s.@(col.ColumnName.NamingPascalCase()))?.Name;
+            @:    s.@(col.ColumnName.NamingPascalCase())DictName = dictList.FirstOrDefault(f => f.DictType.Code == "@(col.DictTypeCode)" && f.Code == @if(col.IsNumColumn())@("\"\" + ")s.@(col.ColumnName.NamingPascalCase()))?.Name;
                                 
                             }
             @:   return s;

@@ -49,3 +49,72 @@ Api分区：AdminCore 的 Api Area
 命名导入：生成代码时包含的命名空间导入，多个用;分隔
 
 服务项包含：默认包含 Add、Update、Delete、Get、GetPage，这里可自已选择是否包含（GetList，BatchDelete、SoftDelete，BatchSoftDelete）
+
+### 如何使用
+#### 后端部分
+- 在 ZhonTai.Host 添加对 ZhonTai.Admin.Dev 的项目引用
+- 修改 ZhonTai.Host 项目 Config\appconfig.json 配置
+    - assemblyNames：`[... "ZhonTai.Admin.Dev" ]`
+    - swagger节点projects增加项 `[...{"name":"代码生成","code":"dev","version":"v0.0.1","description":""}]`
+- 已在开发环境对CodeGenService忽略权限,前端直接显示代码生成，不需要加到数据库视图权限中
+    ``` cs
+    #if DEBUG
+    [AllowAnonymous]
+    #endif
+    public partial class CodeGenService{}
+    ```
+- 运行ZhonTai.Host,可获得dev模块的swagger地址：http://localhost:8000/admin/swagger/dev/swagger.json
+- 
+#### 前端部分
+- 复制 [admin.ui.plus.dev](https://github.com/share36/Admin.Core.Dev) 的 views 文件到前端项目
+- 修改前端 /gen/gen-api.js 文件,添加代码生成器模块配置，执行`npm run gen:api`即可生成dev模块的接口模型定义的相关代码
+    ``` json
+    [
+        {
+            output: path.resolve(__dirname, '../src/api/admin'),
+            url: 'http://localhost:8000/admin/swagger/admin/swagger.json',
+        },
+        //添加模块
+        {
+            output: path.resolve(__dirname, '../src/api/dev'),
+            url: 'http://localhost:8000/admin/swagger/dev/swagger.json',
+        }
+    ]
+    ```
+- 修改/src/router/route.ts,将生成器节点添加到 '/example'前面即可
+  ```json
+  [
+        {
+          path: '/dev',
+          name: 'dev',
+          redirect: '/dev/codegen',
+          meta: {
+            title: '生成器',
+            isLink: '',
+            isHide: false,
+            isKeepAlive: true,
+            isAffix: false,
+            isIframe: false,
+            roles: ['admin'],
+            icon: 'iconfont icon-zujian',
+          },
+          children: [
+            {
+              path: '/dev/codegen',
+              name: '/dev/codegen',
+              component: () => import('/@/views/dev/codegen/index.vue'),
+              meta: {
+                title: '代码生成',
+                isLink: '',
+                isHide: false,
+                isKeepAlive: true,
+                isAffix: false,
+                isIframe: false,
+                roles: ['admin'],
+                icon: 'iconfont icon-zujian',
+              },
+            }]
+        },
+        //...{path: '/example',...}
+  ]
+  ```

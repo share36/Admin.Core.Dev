@@ -1,5 +1,6 @@
 ﻿using CodeService._Extensions;
 using FreeSql;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
@@ -27,6 +28,9 @@ namespace ZhonTai.Admin.Services.CodeGen;
 /// 代码生成服务
 /// </summary>
 [DynamicApi(Area = "dev")]
+#if DEBUG
+[AllowAnonymous]
+#endif
 public partial class CodeGenService : BaseService, ICodeGenService, IDynamicApi
 {
     private ICodeGenRepository _codeGenRepository => LazyGetRequiredService<ICodeGenRepository>();
@@ -46,9 +50,13 @@ public partial class CodeGenService : BaseService, ICodeGenService, IDynamicApi
     /// <returns></returns>
     public async Task<BaseDataGetOutput> GetBaseDataAsync()
     {
-        var dbs = _dbconfig.Dbs.Select(s => new DatabaseGetOutput { DbKey = s.Key, Type = s.Type.ToString() })
-            .Append(new DatabaseGetOutput { DbKey = _dbconfig.Key, Type = _dbconfig.Type.ToString() });
 
+        var dbs = new List<DatabaseGetOutput>() { };
+        dbs.Add(new DatabaseGetOutput { DbKey = _dbconfig.Key, Type = _dbconfig.Type.ToString() });
+        if (_dbconfig.Dbs?.Length > 0)
+        {
+            dbs.AddRange(_dbconfig.Dbs.Select(s => new DatabaseGetOutput { DbKey = s.Key, Type = s.Type.ToString() }));
+        }
 
         var result = new BaseDataGetOutput
         {
@@ -189,6 +197,8 @@ public partial class CodeGenService : BaseService, ICodeGenService, IDynamicApi
         if (String.IsNullOrWhiteSpace(input.AuthorName)) { input.AuthorName = "admin"; }
         try
         {
+            if (string.IsNullOrEmpty(input.DbKey))
+                throw ResultOutput.Exception("数据库选择失效，刷新页面后重试");
             var usings = input.Usings?.Split(';');
             if (input.Fields != null && input.Fields.Count() > 0)
             {
@@ -507,7 +517,7 @@ public partial class CodeGenService : BaseService, ICodeGenService, IDynamicApi
             throw ResultOutput.Exception("未找到父视图：" + gen.MenuPid);
 
         var vName = gen.ApiAreaName?.ToLower() + "/" + gen.EntityName.ToLower();
-        var vLabel = gen.BusName + "管理";
+        var vLabel = gen.BusName + gen.MenuAfterText;
         var vPath = gen.ApiAreaName?.ToLower() + "/" + gen.EntityName.ToLower() + "/index";
 
         var genView = await viewRepo.Where(w => w.ParentId == pView.Id && w.Path == vPath).FirstAsync();
@@ -546,8 +556,8 @@ public partial class CodeGenService : BaseService, ICodeGenService, IDynamicApi
         if (pMenu == null)
             throw ResultOutput.Exception("未找到父菜单：" + gen.MenuPid);
 
-        String mName, mPath, mLabel = gen.BusName + "管理";
-        mName = mPath = gen.ApiAreaName?.ToLower() + "/" + gen.EntityName.ToLower();
+        String mName, mPath, mLabel = gen.BusName + gen.MenuAfterText;
+        mName = mPath = gen.ApiAreaName?.ToLower() + "/" + gen.EntityName.ToLower()+"/list";
         mPath = "/" + mPath;
 
         var menu = await permRepo.Where(w => w.ParentId == pMenu.Id && (w.Label == mLabel || w.Path == mPath)).FirstAsync();
