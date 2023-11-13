@@ -72,6 +72,11 @@ public class CodeGenGetOutput
     public String? MenuPid { get; set; }
 
     /// <summary>
+    /// 菜单后缀
+    /// </summary>
+    public String? MenuAfterText { get; set; }
+
+    /// <summary>
     /// 后端输出目录
     /// </summary>
     public String BackendOut { get; set; }

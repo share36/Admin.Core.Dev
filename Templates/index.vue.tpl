@@ -390,7 +390,7 @@ const onQuery = async () => {
   state.listLoading = false
 }
 const onSizeChange = (val: number) => {
-  state.pageInput.currentPage = val
+  state.pageInput.pageSize = val
   onQuery()
 }
 

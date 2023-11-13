@@ -86,6 +86,12 @@ public class CodeGenEntity : EntityBase
     public string MenuPid { get; set; } = "/app";
 
     /// <summary>
+    /// 菜单后缀
+    /// </summary>
+    [Column(StringLength = 128)]
+    public string MenuAfterText { get; set; }
+
+    /// <summary>
     /// 后端输出目录
     /// </summary>
     [Column(StringLength = 256)]

@@ -10,7 +10,9 @@
     // Api 分组名称
     "apiAreaName": "drive",
     // 默认导入命名空间，多个之间用;分隔
-    "usings": ""
+    "usings": "",
+    //菜单后缀：列表/管理
+    "menuAfterText": "管理"
   },
   //模板参数配置
   "templateOptions": [

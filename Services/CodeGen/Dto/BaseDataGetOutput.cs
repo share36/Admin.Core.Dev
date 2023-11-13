@@ -10,6 +10,7 @@ public class BaseDataGetOutput
     public String BackendOut { get; set; } = "";
     public String FrontendOut { get; set; } = "";
     public String Usings { get; set; } = "";
+    public String MenuAfterText { get; set; } = ""; 
 }
 
 public class DatabaseGetOutput
