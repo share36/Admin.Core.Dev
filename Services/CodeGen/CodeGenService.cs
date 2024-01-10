@@ -167,7 +167,10 @@ public partial class CodeGenService : BaseService, ICodeGenService, IDynamicApi
 
                 if (!autoTypes.Any())
                 {
-                    throw ResultOutput.Exception($"未找到类型[{typeName}]");
+                    autoTypes = AppDomain.CurrentDomain.GetAssemblies()
+                        .Select(s => s.GetType(typeName)).Where(w => w != null);
+                    if (!autoTypes.Any())
+                        throw ResultOutput.Exception($"未找到类型[{typeName}]");
                 }
 
                 if (autoTypes.Count() > 1)

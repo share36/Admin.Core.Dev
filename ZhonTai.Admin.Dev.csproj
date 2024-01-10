@@ -1,15 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <Description>中台Admin代码生成扩展</Description>
+    
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <OpenApiGenerateDocuments>True</OpenApiGenerateDocuments>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Services\DictionaryTree\**" />
+    <EmbeddedResource Remove="Services\DictionaryTree\**" />
+    <None Remove="Services\DictionaryTree\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="RazorEngine.NetCore" Version="3.1.0" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\..\platform\ZhonTai.Admin\ZhonTai.Admin.csproj" />
   </ItemGroup>
@@ -18,13 +28,13 @@
     <None Update="Configs\codegenconfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Templates\index.vue.tpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Templates\I_EN_Repository.cs.tpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Templates\I_EN_Service.cs.tpl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Templates\index.vue.tpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Templates\_EN_Entity.cs.tpl">

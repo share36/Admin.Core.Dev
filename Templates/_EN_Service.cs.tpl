@@ -37,7 +37,7 @@ namespace @(gen.Namespace).Services.@(entityNamePc)
     /// @(gen.BusName)服务
     /// </summary>
     [DynamicApi(Area = "@gen.ApiAreaName")]
-    public class @(entityNamePc)Service : BaseService, I@(entityNamePc)Service, IDynamicApi
+    public partial class @(entityNamePc)Service : BaseService, I@(entityNamePc)Service, IDynamicApi
     {
         private I@(entityNamePc)Repository _@(entityNameCc)Repository => LazyGetRequiredService<I@(entityNamePc)Repository>();
 
@@ -45,20 +45,47 @@ namespace @(gen.Namespace).Services.@(entityNamePc)
         {
         }
 
-        /// <summary>
-        /// 新增
-        /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        [HttpPost]
-        public async Task<long> AddAsync(@(entityNamePc)AddInput input)
-        {
-            var entity = Mapper.Map<@(entityNamePc)Entity>(input);
-            var id = (await _@(entityNameCc)Repository.InsertAsync(entity)).Id;
-
-            return id;
-        }
-
+    @if (gen.Fields.Any(a => a.EncryptTrans))
+    {
+        @:async Task<string> DecryptString(string key, string strToDec)
+        @:{
+        @:    var catchKey = "@(entityNamePc)_" + key;
+        @:    var existsEncKey = await Cache.ExistsAsync(catchKey);
+        @:    if (!existsEncKey) throw ResultOutput.Exception("解密失败！");
+        @:    var encKey = await Cache.GetAsync(catchKey);
+        @:    if (String.IsNullOrWhiteSpace(encKey)){
+        @:        await Cache.DelAsync(catchKey);
+        @:        throw ResultOutput.Exception("解密失败！");
+        @:    }
+        @:    return ZhonTai.Common.Helpers.DesEncrypt.Decrypt(strToDec, encKey);
+        @:}
+    }
+@if(gen.GenAdd){
+@:        /// <summary>
+@:        /// 新增
+@:        /// </summary>
+@:        /// <param name="input"></param>
+@:        /// <returns></returns>
+@:        [HttpPost]
+@:        public async Task<long> AddAsync(@(entityNamePc)AddInput input)
+@:        {
+            @if (gen.Fields.Any(a => a.EncryptTrans))
+            {
+            @:if (!String.IsNullOrWhiteSpace(input.EncryptKey)){
+                @foreach(var field in gen.Fields.Where(w => w.EncryptTrans))
+                {
+                @:if (!String.IsNullOrWhiteSpace(input.@(field.ColumnName.NamingPascalCase())))
+                @:    input.@(field.ColumnName.NamingPascalCase()) = await DecryptString(input.EncryptKey, input.@(field.ColumnName.NamingPascalCase()));
+                }
+                @:await Cache.DelAsync("@(entityNamePc)_" + input.EncryptKey);
+            @:}                
+            }
+@:            var entity = Mapper.Map<@(entityNamePc)Entity>(input);
+@:            var id = (await _@(entityNameCc)Repository.InsertAsync(entity)).Id;
+@:
+@:            return id;
+@:        }
+}
         /// <summary>
         /// 查询
         /// </summary>
@@ -98,9 +125,9 @@ namespace @(gen.Namespace).Services.@(entityNamePc)
 
                             var usedDicCols = gen.Fields.Where(w => !string.IsNullOrWhiteSpace(w.DictTypeCode));
 
-            @:var dictRepo = LazyGetRequiredService<ZhonTai.Admin.Domain.Dictionary.IDictionaryRepository>();
+            @:var dictRepo = LazyGetRequiredService<ZhonTai.Admin.Domain.Dict.IDictRepository>();
             @:var dictList = await dictRepo.Where(w => new string[] { @(string.Concat("\"" , string.Join("\", \"", usedDicCols.Select(s=>s.DictTypeCode)), "\"")) }
-            @:    .Contains(w.DictionaryType.Code)).ToListAsync();
+            @:    .Contains(w.DictType.Code)).ToListAsync();
 
             @:
             @:list = list.Select(s =>
@@ -108,7 +135,7 @@ namespace @(gen.Namespace).Services.@(entityNamePc)
                             foreach(var col in usedDicCols)
                             {
 
-            @:    s.@(col.ColumnName.NamingPascalCase())DictName = dictList.FirstOrDefault(f => f.DictionaryType.Code == "@(col.DictTypeCode)" && f.Code == @if(col.IsNumColumn())@("\"\" + ")s.@(col.ColumnName.NamingPascalCase()))?.Name;
+            @:    s.@(col.ColumnName.NamingPascalCase())DictName = dictList.FirstOrDefault(f => f.DictType.Code == "@(col.DictTypeCode)" && f.Code == @if(col.IsNumColumn())@("\"\" + ")s.@(col.ColumnName.NamingPascalCase()))?.Name;
                                 
                             }
             @:
@@ -122,34 +149,48 @@ namespace @(gen.Namespace).Services.@(entityNamePc)
             return data;
         }
 
-        /// <summary>
-        /// 更新
-        /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        [HttpPut]
-        public async Task UpdateAsync(@(entityNamePc)UpdateInput input)
-        {
-            var entity = await _@(entityNameCc)Repository.GetAsync(input.Id);
-            if (!(entity?.Id > 0))
+@if(gen.GenUpdate){
+@:        /// <summary>
+@:        /// 更新
+@:        /// </summary>
+@:        /// <param name="input"></param>
+@:        /// <returns></returns>
+@:        [HttpPut]
+@:        public async Task UpdateAsync(@(entityNamePc)UpdateInput input)
+@:        {
+@:            var entity = await _@(entityNameCc)Repository.GetAsync(input.Id);
+@:            if (!(entity?.Id > 0))
+@:            {
+@:                throw ResultOutput.Exception("@(gen.BusName)不存在！");
+@:            }
+            @if (gen.Fields.Any(a => a.EncryptTrans))
             {
-                throw ResultOutput.Exception("@(gen.BusName)不存在！");
+            @:if (!String.IsNullOrWhiteSpace(input.EncryptKey)){
+                @foreach(var field in gen.Fields.Where(w => w.EncryptTrans))
+                {
+                @:if (!String.IsNullOrWhiteSpace(input.@(field.ColumnName.NamingPascalCase())))
+                @:    input.@(field.ColumnName.NamingPascalCase()) = await DecryptString(input.EncryptKey, input.@(field.ColumnName.NamingPascalCase()));
+                }
+                @:await Cache.DelAsync("@(entityNamePc)_" + input.EncryptKey);
+            @:}                
             }
+@:            Mapper.Map(input, entity);
+@:            await _@(entityNameCc)Repository.UpdateAsync(entity);
+@:        }
+}
 
-            Mapper.Map(input, entity);
-            await _@(entityNameCc)Repository.UpdateAsync(entity);
-        }
-
-        /// <summary>
-        /// 删除
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        [HttpDelete]
-        public async Task<bool> DeleteAsync(long id)
-        {
-            return await _@(entityNameCc)Repository.DeleteAsync(id) > 0;
-        }
+@if(gen.GenDelete){
+@:        /// <summary>
+@:        /// 删除
+@:        /// </summary>
+@:        /// <param name="id"></param>
+@:        /// <returns></returns>
+@:        [HttpDelete]
+@:        public async Task DeleteAsync(long id)
+@:        {
+@:            await _@(entityNameCc)Repository.DeleteAsync(id);
+@:        }
+}
 
 @if(gen.GenGetList){
         @:/// <summary>
@@ -175,9 +216,9 @@ namespace @(gen.Namespace).Services.@(entityNamePc)
 
                             var usedDicCols = gen.Fields.Where(w => !string.IsNullOrWhiteSpace(w.DictTypeCode));
 
-            @:var dictRepo = LazyGetRequiredService<ZhonTai.Admin.Domain.Dictionary.IDictionaryRepository>();
+            @:var dictRepo = LazyGetRequiredService<ZhonTai.Admin.Domain.Dict.IDictRepository>();
             @:var dictList = await dictRepo.Where(w => new string[] { @(string.Concat("\"" , string.Join("\", \"", usedDicCols.Select(s=>s.DictTypeCode)), "\"")) }
-            @:    .Contains(w.DictionaryType.Code)).ToListAsync();
+            @:    .Contains(w.DictType.Code)).ToListAsync();
 
 
             @:return list.Select(s =>
@@ -185,7 +226,7 @@ namespace @(gen.Namespace).Services.@(entityNamePc)
                             foreach(var col in usedDicCols)
                             {
 
-            @:    s.@(col.ColumnName.NamingPascalCase())DictName = dictList.FirstOrDefault(f => f.DictionaryType.Code == "@(col.DictTypeCode)" && f.Code == @if(col.IsNumColumn())@("\"\" + ")s.@(col.ColumnName.NamingPascalCase()))?.Name;
+            @:    s.@(col.ColumnName.NamingPascalCase())DictName = dictList.FirstOrDefault(f => f.DictType.Code == "@(col.DictTypeCode)" && f.Code == @if(col.IsNumColumn())@("\"\" + ")s.@(col.ColumnName.NamingPascalCase()))?.Name;
                                 
                             }
             @:   return s;
@@ -205,9 +246,9 @@ namespace @(gen.Namespace).Services.@(entityNamePc)
         @:/// <param name="ids"></param>
         @:/// <returns></returns>
         @:[HttpPut]
-        @:public async Task<bool> BatchDeleteAsync(long[] ids)
+        @:public async Task BatchDeleteAsync(long[] ids)
         @:{
-        @:    return await _@(entityNameCc)Repository.Where(w=>ids.Contains(w.Id)).ToDelete().ExecuteAffrowsAsync() > 0;
+        @:    await _@(entityNameCc)Repository.DeleteAsync(d => ids.Contains(d.Id));
         @:}
 }
 
@@ -218,9 +259,9 @@ namespace @(gen.Namespace).Services.@(entityNamePc)
         @:/// <param name="id"></param>
         @:/// <returns></returns>
         @:[HttpDelete]
-        @:public async Task<bool> SoftDeleteAsync(long id)
+        @:public async Task SoftDeleteAsync(long id)
         @:{
-        @:    return await _@(entityNameCc)Repository.SoftDeleteAsync(id);
+        @:    await _@(entityNameCc)Repository.SoftDeleteAsync(id);
         @:}
 }
 
@@ -232,11 +273,25 @@ namespace @(gen.Namespace).Services.@(entityNamePc)
         @:/// <param name="ids"></param>
         @:/// <returns></returns>
         @:[HttpPut]
-        @:public async Task<bool> BatchSoftDeleteAsync(long[] ids)
+        @:public async Task BatchSoftDeleteAsync(long[] ids)
         @:{
-        @:    return await _@(entityNameCc)Repository.SoftDeleteAsync(ids);
+        @:    await _@(entityNameCc)Repository.SoftDeleteAsync(ids);
         @:}
-
 }
+
+@if (gen.Fields.Any(a=>a.EncryptTrans)){
+        @:/// <summary>获取加密信息</summary>
+        @:[HttpGet]
+        @:[ZhonTai.Admin.Core.Attributes.NoOprationLog]
+        @:public async Task<KeyValuePair<string, string>> GetEncryptInfo()
+        @:{
+        @:    var guid = Guid.NewGuid().ToString("N");
+        @:    var key = "@(entityNamePc)_" + guid;
+        @:    var encyptKey = ZhonTai.Common.Helpers.StringHelper.GenerateRandom(8);
+        @:    await Cache.SetAsync(key, encyptKey, TimeSpan.FromMinutes(2));
+        @:    return KeyValuePair.Create(guid, encyptKey);
+        @:}
+}
+
     }
 }

@@ -57,7 +57,7 @@
         {
             editorName = "el-select";
             if( col.IsNullable)attrs += " clearable ";
-            innerBody = string.Concat("<el-option v-for=", "\"item in dicts['", col.DictTypeCode, "']\" :key=\"item.code\" :value=\"item.code\" :label=\"item.name\" />");
+            innerBody = string.Concat("<el-option v-for=", "\"item in state.dicts['", col.DictTypeCode, "']\" :key=\"item.code\" :value=\"item.code\" :label=\"item.name\" />");
         }
         else if (col.Editor == "el-select")
         {
@@ -75,6 +75,24 @@
                 }
             }
         }
+        else if(col.Editor == "el-password")
+        {
+            editorName = "el-input";
+            attrs += "type=\"password\"";
+        }
+        else if(col.Editor == "el-datetime-picker"){
+            editorName = "el-date-picker";
+            attrs +="type=\"datetime\" value-format=\"YYYY-MM-DD HH:mm:ss\"";
+        }
+        else if(col.Editor == "el-upload"){
+            editorName = "el-upload";
+            attrs += " ref=\"uploadRef" + col.ColumnName.NamingPascalCase() + "\" :auto-upload=\"false\" :action=\"uploadAction\"";
+            attrs += " :headers=\"uploadHeaders\" :data=\"{fileDirectory:'',fileReName:true}\" :show-file-list=\"false\"";
+            attrs += " :before-upload=\"beforUnload\"";
+            attrs += " :on-success=\"onUploadSuccess\" :on-error=\"onUploadError\"";
+
+            innerBody += "<template #trigger><el-button type=\"primary\">选择文件...</el-button></template>";
+        }
         else if(defineUiComponentsImportPath.Keys.Any(a => a == col.Editor))
         {
             attrs = attrs + " class=\"input-with-select\" ";
@@ -84,13 +102,13 @@
         return editorName;
     }
 
-    var dictCodes = gen.Fields.Where(w => "dict" == w.EffectType).Select(s => s.DictTypeCode);// editors.Any(a => a == "my-select-dictionary");
+    var dictCodes = gen.Fields.Where(w => "dict" == w.EffectType || !String.IsNullOrWhiteSpace(w.DictTypeCode)).Select(s => s.DictTypeCode);// editors.Any(a => a == "my-select-dictionary");
     var hasDict = dictCodes.Any();
     var includeFields = gen.Fields.Where(w => !String.IsNullOrWhiteSpace(w.IncludeEntity));
 
-    //var hasRole = editors.Any(a => a == "my-role");
-    //var hasUser = editors.Any(a => a == "my-user");
-    //var hasPosition = editors.Any(a => a == "my-position");
+    var hasEncrypt = gen.Fields.Any(a => a.EncryptTrans);
+
+    var hasUpload = gen.Fields.Any(a => a.Editor == "el-upload");
 
     string jsBool(Boolean exp){
         return exp ? "true" : "false";
@@ -117,20 +135,22 @@
                 }
                 @if (queryColumns.Count() > 0)
                 {
-        @:<el-form-item>
+        @:<el-form-item v-auth="perms.getPage">
         @:  <el-button type="primary" icon="ele-Search" @(at)click="onQuery">查询</el-button>
         @:</el-form-item>
                 }
-        <el-form-item v-auth="perms.add">
-          <el-button type="primary" icon="ele-Plus" @(at)click="onAdd">新增</el-button>
-        </el-form-item>
+@if(gen.GenAdd){
+@:        <el-form-item v-auth="perms.add">
+@:          <el-button type="primary" icon="ele-Plus" @(at)click="onAdd">新增</el-button>
+@:        </el-form-item>
+}
         @if(gen.GenBatchDelete || gen.GenBatchSoftDelete){
         @:<el-form-item v-auths="[perms.batDelete, perms.batSoftDelete]" >
         if(gen.GenBatchSoftDelete){
-        @:  <el-button v-auth="perms.batSoftDelete" type="warning" :disabled="state.sels.length==0" :placement="'bottom-end'" @(at)click="onBatchSoftDelete" icon="ele-DeleteFilled">批量软删除</el-button>
+        @:  <el-button v-if="auth(perms.batSoftDelete)" type="warning" :disabled="state.sels.length==0" :placement="'bottom-end'" @(at)click="onBatchSoftDelete" icon="ele-DeleteFilled">批量软删除</el-button>
         }
         if(gen.GenBatchDelete){
-        @:  <el-button v-auth="perms.batDelete" type="danger" :disabled="state.sels.length==0" :placement="'bottom-end'" @(at)click="onBatchDelete" icon="ele-Delete">批量删除</el-button>
+        @:  <el-button v-if="auth(perms.batDelete)" type="danger" :disabled="state.sels.length==0" :placement="'bottom-end'" @(at)click="onBatchDelete" icon="ele-Delete">批量删除</el-button>
         }
         @:</el-form-item>
         }
@@ -152,7 +172,9 @@
             }
         <el-table-column v-auths="[perms.update,perms.softDelete,perms.delete]" label="操作" :width="actionColWidth" fixed="right">
           <template #default="{ row }">
-            <el-button v-auth="perms.update" icon="ele-EditPen" size="small" text type="primary" @(at)click="onEdit(row)">编辑</el-button>
+@if(gen.GenUpdate){
+@:            <el-button v-if="auth(perms.update)" icon="ele-EditPen" size="small" text type="primary" @(at)click="onEdit(row)">编辑</el-button>
+}
             @if(gen.GenSoftDelete){
             @:<el-dropdown v-if="authAll([perms.delete,perms.softDelete])" style="margin:5px 0 0 5px;">
             @:  <span><el-icon class="el-icon--right"><component :is="'ele-ArrowDown'" /></el-icon></span>
@@ -168,7 +190,7 @@
             @:  <el-button text type="danger" v-if="auth(perms.delete)" style="height:inherit" @(at)click="onDelete(row)" icon="ele-Delete">删除</el-button>
             @:</span>
             }else{
-            @:<el-button text type="danger" v-auth="perms.delete" @(at)click="onDelete(row)" icon="ele-Delete">删除</el-button>
+            @:<el-button text type="danger" v-if="auth(perms.delete)" @(at)click="onDelete(row)" icon="ele-Delete">删除</el-button>
             }
           </template>
         </el-table-column>
@@ -184,10 +206,10 @@
       </div>
     </el-card>
 
-    
-    <el-drawer direction="rtl" v-model="state.formShow" :title="state.formTitle">
-      <el-form :model="state.formData" label-width="100" style="margin:8px;"
-        :rules="state.editMode=='add'?addRules:updateRules" ref="dataEditor">
+@if(gen.GenAdd || gen.GenUpdate){    
+@:    <el-drawer direction="rtl" v-model="state.formShow" :title="state.formTitle">
+@:      <el-form :model="state.formData" label-width="100" style="margin:8px;"
+@:        :rules="state.editMode=='add'?addRules:updateRules" ref="dataEditor">
       @foreach(var col in gen.Fields.Where(w=>!w.IsIgnoreColumn() && ( w.WhetherAdd || w.WhetherUpdate )))
       {
         var editor = editorName(col, out attributes, out inner);
@@ -199,21 +221,41 @@
         @:  </@(editor)>
         @:</el-form-item>
       }
-      </el-form>
-      <template #footer>
-        <el-card>
-          <el-button @(at)click="state.formShow = false">取消</el-button>
-          <el-button type="primary" @(at)click="submitData(state.formData)">确定</el-button>
-        </el-card>
-      </template>
-    </el-drawer>
+@:      </el-form>
+@:      <template #footer>
+@:        <el-card>
+@:          <el-button @(at)click="state.formShow = false">取消</el-button>
+          @if(!hasUpload)
+          {
+@:          <el-button type="primary" @(at)click="submitData(state.formData)">确定</el-button>
+          }else{
+@:          <el-button type="primary" @(at)click="submitUpload">确定</el-button>
+          }
+@:        </el-card>
+@:      </template>
+@:    </el-drawer>
+}
   </div>
 </template>
 
-<script lang="ts" setup>
-import { ref, reactive, onMounted, getCurrentInstance, onUnmounted, defineAsyncComponent } from 'vue'
+<script lang="ts" setup name="@(areaNameCc)/@(entityNameCc)">
+import { ref, reactive, @if(hasUpload){@("computed, ");}onMounted, getCurrentInstance, onUnmounted, defineAsyncComponent } from 'vue'
 import { FormRules } from 'element-plus'
-import { PageInput@(entityNamePc)GetPageInput, @(entityNamePc)GetPageInput, @(entityNamePc)GetPageOutput, @(entityNamePc)GetOutput, @(entityNamePc)AddInput, @(entityNamePc)UpdateInput,
+@if(hasUpload){
+@:import { useUserInfo } from '/@(at)/stores/userInfo'
+@:import pinia from '/@(at)/stores/index'
+@:import { storeToRefs } from 'pinia'
+@:import { AxiosResponse } from 'axios'
+@:import { ResultOutputFileEntity } from '/@(at)/api/admin/data-contracts'
+@:import type { UploadInstance } from 'element-plus'
+}
+import { PageInput@(entityNamePc)GetPageInput, @(entityNamePc)GetPageInput, @(entityNamePc)GetPageOutput, @(entityNamePc)GetOutput, 
+@if(gen.GenAdd){
+@:	@(entityNamePc)AddInput,
+}
+@if(gen.GenUpdate){
+@:	@(entityNamePc)UpdateInput,
+}
 @if(gen.GenGetList){
 @:  @(entityNamePc)GetListInput, @(entityNamePc)GetListOutput,
 }
@@ -228,9 +270,12 @@ import { PageInput@(entityNamePc)GetPageInput, @(entityNamePc)GetPageInput, @(en
             }
             else
             {
-@:  @(incField.IncludeEntity.Replace("Entity", ""))GetOutput,                    
+@:  @(incField.IncludeEntity.Replace("Entity", ""))GetOutput,
             }
         }
+    }
+    if(gen.Fields.Any(a=>a.EncryptTrans)){
+@:  KeyValuePairStringString,
     }
 }
 } from '/@(at)/api/@(areaNameKc)/data-contracts'
@@ -248,7 +293,7 @@ import { auth, auths, authAll } from '/@(at)/utils/authFunction'
 
     @if (hasDict)
     {
-@:import dictTreeApi from '@(at)/api/admin/dictionary-tree'        
+@:import { DictonaryTreeApi, DictionaryTreeOutput } from '/@(at)/api/admin/DictionaryTree'        
     }
     @foreach (var comp in uiComponentsInfo)
     {
@@ -257,10 +302,20 @@ import { auth, auths, authAll } from '/@(at)/utils/authFunction'
 
 
 const { proxy } = getCurrentInstance() as any
+@if(hasUpload){
+@:const storesUserInfo = useUserInfo(pinia)
+
+@foreach(var field in gen.Fields.Where(w=>w.Editor=="el-upload")){
+@:const uploadRef@(field.ColumnName.NamingPascalCase()) = ref<UploadInstance>()
+}
+}
 
 const dataEditor = ref()
 
 const perms = {
+  get:'api:@(permissionArea):get',
+  getList:'api:@(permissionArea):get-list',
+  getPage:'api:@(permissionArea):get-page',
   add:'api:@(permissionArea):add',
   update:'api:@(permissionArea):update',
   delete:'api:@(permissionArea):delete',
@@ -291,12 +346,21 @@ const updateRules = {
 }
 }
 
+@{
+	var formDataTypes = new List<String>();
+	if(gen.GenAdd)formDataTypes.Add("AddInput");
+	if(gen.GenUpdate)formDataTypes.Add("UpdateInput");
+	var formDataTypeStr = "Object";
+	if(formDataTypes.Count>0)
+		formDataTypeStr = String.Join(" | ", formDataTypes.Select(s=>entityNamePc+s));
+}
+
 const state = reactive({
   listLoading: false,
   formTitle: '',
   editMode: 'add',
   formShow: false,
-  formData: {} as @(entityNamePc)AddInput | @(entityNamePc)UpdateInput,
+  formData: {} as @(formDataTypeStr),//@(entityNamePc)AddInput | @(entityNamePc)UpdateInput,
   sels: [] as Array<@(entityNamePc)GetPageOutput>,
   filterModel: {
 @foreach(var f in queryColumns.Where(w=>!w.IsIgnoreColumn())){
@@ -312,7 +376,11 @@ const state = reactive({
   @if(gen.GenGetList){
   @:@(entityNameCc)List: [] as Array<@(entityNamePc)GetListOutput>,
   }
-      @if (hasDict)
+    @if(hasUpload){
+  @:token: storesUserInfo.getToken(),
+  @:fileUploading: false,
+    }
+    @if (hasDict)
     {
   @://字典相关
   @:dictSelectorTitle: '字典内容选择',
@@ -322,11 +390,65 @@ const state = reactive({
   @:dicts:{
     foreach (var d in dictCodes)
     {
-    @:"@(d)":[],   
+    @:"@(d)": [] as DictionaryTreeOutput[],
     }
   @:}
     }
 })
+
+@if(hasUpload){
+@:const uploadHeaders = computed(()=>{ return { Authorization: 'Bearer ' + state.token } })
+@:const addUploadAction = computed(()=>{ return import.meta.env.VITE_API_URL + '/api/@(areaNameKc)/@(entityNameKc)/add'})
+@:const updateUploadAction = computed(()=>{ return import.meta.env.VITE_API_URL + '/api/@(areaNameKc)/@(entityNameKc)/update'})
+@:const uploadAction = computed(()=>{ return import.meta.env.VITE_API_URL + '/api/admin/file/upload-file'})
+@://const uploadAction = ()=>{ return state.editMode=='add'?addUploadAction:updateUploadAction }
+@:
+@:const beforUnload=() => {
+@:  //自定义上传前验证逻辑，验证不通过时 return false
+  
+@:  state.token = storesUserInfo.getToken()
+@:  state.fileUploading = true
+
+@:  return true
+@:}
+@:
+@:const onUploadSuccess = (res: ResultOutputFileEntity) =>{
+@:    state.fileUploading = false
+@:    if (!res?.success) {
+@:        if (res.msg) {
+@:            proxy.$model?.msgError(res.msg)
+@:        }
+@:        return
+@:    }
+@:    // 上传成功后的处理操作
+@:    state.formData.fileId=res.data?.id
+@:    submitData(state.formData);
+@:}
+@:
+@:const onUploadError = (error: any) => {
+@:    state.fileUploading = false
+@:    let message = ''
+@:    if (error.message) {
+@:        try{
+@:            message = JSON.parse(error.message)?.msg
+@:        } catch (err) {
+@:            message = error.message || ''
+@:        }
+@:    }
+@:    if (message) proxy.$model?.msgError(message)
+@:}
+@:
+@:const submitUpload = () =>{
+@:  dataEditor?.value?.validate(async (valid: boolean) => {
+@:    if (!valid) return
+@:
+@foreach(var field in gen.Fields.Where(w=>w.Editor=="el-upload")){
+@:   uploadRef@(field.ColumnName.NamingPascalCase()).value!.submit()
+}
+@:  })
+@:
+@:}
+}
 
 const editItemIsShow = (add: Boolean, edit: Boolean): Boolean => {
     if(add && edit)return true;
@@ -339,7 +461,7 @@ onMounted(()=>{
   onQuery()
     @if (hasDict)
     {
-@:  getDictsTree()      
+@:  getDictsTree()
     }
 })
 
@@ -350,15 +472,14 @@ onUnmounted(()=>{
 @if (hasDict)
 {
 @://获取需要使用的字典树
-@:const getDictsTree = async () {
-@:  let me = this;
-@:  let res = await dictTreeApi.get({codes:'@(string.Join(',', dictCodes))'})
+@:const getDictsTree = async () => {
+@:  let res = await new DictonaryTreeApi().get({codes:'@(string.Join(',', dictCodes))'})
 @:  if(!res?.success)return;
 @:  for(var i in res.data){
 @:    let item = res.data[i]
-@:    var key = item.code
-@:    var values = item.childrens
-@:    me.dicts[key]= values
+@:    let key = item.code
+@:    let values = item.childrens
+@:    state.dicts[key]= values
 @:  }
 @:}
 }
@@ -367,13 +488,14 @@ const showEditor = () => {
   state.formShow = true
   dataEditor?.value?.resetFields()
 }
-
-const defaultToAdd = (): @(entityNamePc)AddInput => {
-  return {
+@if(gen.GenAdd){
+@:const defaultToAdd = (): @(entityNamePc)AddInput => {
+@:  return {
 @foreach(var col in gen.Fields.Where(w=>!w.IsIgnoreColumn())){
 @:    @(col.ColumnName.NamingCamelCase()): @(col.GetDefaultValueStringScript()),
 }
-  } as @(entityNamePc)AddInput
+@:  } as @(entityNamePc)AddInput
+@:}
 }
 
 const onQuery = async () => {
@@ -389,8 +511,9 @@ const onQuery = async () => {
   state.total = res?.data?.total ?? 0
   state.listLoading = false
 }
+
 const onSizeChange = (val: number) => {
-  state.pageInput.currentPage = val
+  state.pageInput.pageSize = val
   onQuery()
 }
 
@@ -406,53 +529,80 @@ const selsChange = (vals: @(entityNamePc)GetPageOutput[]) => {
 const onAdd = () => {
   state.editMode = 'add'
   state.formTitle = '新增@(gen.BusName)'
-  state.formData = defaultToAdd()
+@if(gen.GenAdd){
+@:  state.formData = defaultToAdd()
+}
   showEditor()
 }
 
 const onEdit = async (row: @(entityNamePc)GetOutput) => {
   state.editMode = 'edit'
   state.formTitle = '编辑@(gen.BusName)'
-  const res = await new @(apiName)().get({id: row.id}, { loading: true})
-  if (res?.success) {
-    showEditor()
-    state.formData = res.data as @(entityNamePc)UpdateInput
-  }
+@if(gen.GenUpdate){
+@:  const res = await new @(apiName)().get({id: row.id}, { loading: true})
+@:  if (res?.success) {
+@:    showEditor()
+@:    state.formData = res.data as @(entityNamePc)UpdateInput
+@:  }
+}
 }
 
 const onDelete = async (row: @(entityNamePc)GetOutput) => {
   proxy.$modal?.confirmDelete(`确定要删除？`).then(async () =>{
-      const rst = await new @(apiName)().delete({ id: row.id }, { loading: true, showSuccessMessage: true })
-      if(rst?.success){
-        onQuery()
-      }
+@if(gen.GenDelete){
+@:      const rst = await new @(apiName)().delete({ id: row.id }, { loading: true, showSuccessMessage: true })
+@:      if(rst?.success){
+@:        onQuery()
+@:      }
+}
     })
 }
 
-const onAddPost = async (addData: @(entityNamePc)AddInput) => {
-  const res = await new @(apiName)().add(addData, { loading: true, showSuccessMessage: true })
-  if (res?.success) {
-    onQuery()
-    state.formShow = false
-  }
+@if(gen.GenAdd){
+@:const onAddPost = async (addData: @(entityNamePc)AddInput) => {
+@:  const res = await new @(apiName)().add(addData, { loading: true, showSuccessMessage: true })
+@:  if (res?.success) {
+@:    onQuery()
+@:    state.formShow = false
+@:  }
+@:}
 }
 
-const onUpdatePost = async (updateData: @(entityNamePc)UpdateInput) => {
-  const res = await new @(apiName)().update(updateData, { loading: true, showSuccessMessage: true })
-  if (res?.success) {
-    onQuery()
-    state.formShow = false
-  }
+@if(gen.GenUpdate){
+@:const onUpdatePost = async (updateData: @(entityNamePc)UpdateInput) => {
+@:  const res = await new @(apiName)().update(updateData, { loading: true, showSuccessMessage: true })
+@:  if (res?.success) {
+@:    onQuery()
+@:    state.formShow = false
+@:  }
+@:}
 }
 
-const submitData = async (editData: @(entityNamePc)AddInput | @(entityNamePc)UpdateInput) => {
+const submitData = async (editData: @(formDataTypeStr)/*@(entityNamePc)AddInput | @(entityNamePc)UpdateInput*/) => {
   dataEditor?.value?.validate(async (valid: boolean) => {
     if (!valid) return
-    
+
+    @if (gen.Fields.Any(a=>a.EncryptTrans)){
+    @:let encInfo = await getEncryptInfo();
+    @:editData.encryptKey = encInfo.key
+    @:let encrypt = proxy.$crypto
+    }
+
     if (state.editMode == 'add') {
-      onAddPost(editData)
+@if(gen.GenAdd){
+    @if (gen.Fields.Any(a=>a.EncryptTrans)){
+      foreach(var field in gen.Fields.Where(w=>w.EncryptTrans)){
+        var colName = field.ColumnName.NamingCamelCase();
+      @:if (editData.@(colName))
+        @:editData.@(colName) = encrypt.encryptByDES(editData.@(colName), encInfo.value)
+      }
+    }
+@:      onAddPost(editData as @(entityNamePc)AddInput)
+}
     } else if (state.editMode == 'edit') {
-      onUpdatePost(editData)
+@if(gen.GenUpdate){
+@:      onUpdatePost(editData as @(entityNamePc)UpdateInput)
+}
     }
   })
 }
@@ -460,7 +610,7 @@ const submitData = async (editData: @(entityNamePc)AddInput | @(entityNamePc)Upd
 @if(gen.GenBatchDelete){
 @:const onBatchDelete = async () => {
 @:  proxy.$modal?.confirmDelete(`确定要删除选择的${state.sels.length}条记录？`).then(async () =>{
-@:    const rst = await new @(apiName)().batchDelete(state.sels.map(item=>item.id), { loading: true, showSuccessMessage: true })
+@:    const rst = await new @(apiName)().batchDelete(state.sels.map(item=>item.id) as Array<number>, { loading: true, showSuccessMessage: true })
 @:    if(rst?.success){
 @:      onQuery()
 @:    }
@@ -482,13 +632,22 @@ const submitData = async (editData: @(entityNamePc)AddInput | @(entityNamePc)Upd
 @if(gen.GenBatchSoftDelete){
 @:const onBatchSoftDelete = async () => {
 @:  proxy.$modal?.confirmDelete(`确定要将选择的${state.sels.length}条记录移入回收站？`).then(async () =>{
-@:    const rst = await new @(apiName)().batchSoftDelete(state.sels.map(item=>item.id), { loading: true, showSuccessMessage: true })
+@:    const rst = await new @(apiName)().batchSoftDelete(state.sels.map(item=>item.id) as Array<number>, { loading: true, showSuccessMessage: true })
 @:    if(rst?.success){
 @:      onQuery()
 @:    }
 @:  })
 @:}
+
+@if(gen.Fields.Any(a=>a.EncryptTrans)){
+@:const getEncryptInfo = async (): KeyValuePairStringString => {
+@:  const rst  = await new @(apiName)().getEncryptInfo()
+@:  if(rst?.success)return rst.data
+@:  return null
+@:}
 }
+}
+
 </script>
 
 <script lang="ts">

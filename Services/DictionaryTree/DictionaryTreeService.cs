@@ -1,7 +1,7 @@
 ﻿using MapsterMapper;
 using ZhonTai.Admin.Core.Consts;
-using ZhonTai.Admin.Domain.Dictionary;
-using ZhonTai.Admin.Domain.DictionaryType;
+using ZhonTai.Admin.Domain.Dict;
+using ZhonTai.Admin.Domain.DictType;
 using ZhonTai.Admin.Services;
 using ZhonTai.DynamicApi;
 using ZhonTai.DynamicApi.Attributes;
@@ -25,17 +25,17 @@ namespace ZhonTai.Admin.Services.DictionaryTree
 
             IEnumerable<String>? typesToGet = !String.IsNullOrWhiteSpace(codes) ? codes.Split(',') : null;
 
-            var typeRepos = LazyGetRequiredService<IDictionaryTypeRepository>();
-            var dictRepos = LazyGetRequiredService<IDictionaryRepository>();
+            var typeRepos = LazyGetRequiredService<IDictTypeRepository>();
+            var dictRepos = LazyGetRequiredService<IDictRepository>();
             var types = await typeRepos.Select
-                .WhereIf(typesToGet != null, w => typesToGet.Contains(w.Code))
-                .ToListAsync< Dto.DictionaryTreeOutput>();
+                .WhereIf(typesToGet != null && typesToGet.Count() > 0, w => typesToGet!.Contains(w.Code))
+                .ToListAsync<Dto.DictionaryTreeOutput>();
             var typesId = types.Select(s => s.Id);
-            var dicts = await dictRepos.Select.Where(w => typesId.Contains(w.DictionaryTypeId)).ToListAsync();
+            var dicts = await dictRepos.Select.Where(w => typesId.Contains(w.DictTypeId)).ToListAsync();
 
             return types.Select(s =>
             {
-                s.Childrens = dicts.Where(w => w.DictionaryTypeId == s.Id).Select(s => _mapper.Map<Dto.DictionaryTreeOutput>(s));
+                s.Childrens = dicts.Where(w => w.DictTypeId == s.Id).Select(s => _mapper.Map<Dto.DictionaryTreeOutput>(s));
                 return s;
             });
         }

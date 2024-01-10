@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using NetTopologySuite.IO;
-using RazorEngine.Compilation.ImpromptuInterface.Dynamic;
-using RazorEngine.Compilation.ImpromptuInterface.Optimization;
-using StackExchange.Profiling.Internal;
+﻿//using Microsoft.AspNetCore.Http.HttpResults;
+//using NetTopologySuite.IO;
+//using RazorEngine.Compilation.ImpromptuInterface.Dynamic;
+//using RazorEngine.Compilation.ImpromptuInterface.Optimization;
+//using StackExchange.Profiling.Internal;
 using ZhonTai.Admin.Domain.CodeGen;
 
+/// <summary>
+/// 代码生成-字段对象扩展方法
+/// </summary>
 public static class CodeGenFieldEntityExtension
 {
     static String[] numFields = new String[] { "decimal", "double",
@@ -94,7 +97,11 @@ public static class CodeGenFieldEntityExtension
         }
         return "\"" + col.DefaultValue + "\"";
     }
-
+    /// <summary>
+    /// 获取各类型对应的前端脚本默认值代码
+    /// </summary>
+    /// <param name="col"></param>
+    /// <returns></returns>
     public static String GetDefaultValueStringScript(this CodeGenFieldEntity col)
     {
         if (col.IsNullable) return "null";
@@ -104,7 +111,7 @@ public static class CodeGenFieldEntityExtension
             {
                 return "new Date()";
             }
-            if(DateTime.TryParse(col.DefaultValue, out DateTime res))
+            if (DateTime.TryParse(col.DefaultValue, out DateTime res))
             {
                 return "new Date(" + String.Join(", ", res.Year, res.Month, res.Day, res.Hour, res.Minute, res.Second) + ")";
             }
@@ -182,9 +189,17 @@ public static class CodeGenFieldEntityExtension
     public static string FreeSqlNavigaetAttribute(this CodeGenFieldEntity col)
     {
         if (col == null) return string.Empty;
-        if (string.IsNullOrWhiteSpace(col.IncludeEntity) || string.IsNullOrWhiteSpace(col.IncludeEntityKey)) return "";
-        return string.Concat("[Navigate(nameof(", col.IncludeEntity.NamingPascalCase().PadEndIfNot("Entity"), ".", col.IncludeEntityKey.NamingPascalCase(), "))]");
-
+        if (col.IncludeMode == 1)
+        {
+            if (string.IsNullOrWhiteSpace(col.IncludeEntity) || string.IsNullOrWhiteSpace(col.IncludeEntityKey)) return "";
+            return string.Concat("[Navigate(nameof(", col.IncludeEntity.Split('.').Last().NamingPascalCase().PadEndIfNot("Entity"), ".", col.IncludeEntityKey.NamingPascalCase(), "))]");
+        }
+        else if (col.IncludeMode == 0)
+        {
+            if (string.IsNullOrWhiteSpace(col.IncludeEntity)) return "";
+            return string.Concat("[Navigate(nameof(", col.ColumnName.NamingPascalCase(), "))]");
+        }
+        return string.Empty;
     }
 
     /// <summary>
@@ -199,10 +214,16 @@ public static class CodeGenFieldEntityExtension
 
         if ("-_>".Contains(col.ColumnName)) return string.Empty;
 
-        var propType = col.NetType.PadEndIfNot(col.IsNullable || isNullable, "?");
+        isNullable = isNullable || col.IsNullable;
+
+        var propType = col.NetType.PadEndIfNot(isNullable, "?");
         var propName = col.ColumnName.NamingPascalCase();
 
         var defaultValueStr = (!String.IsNullOrWhiteSpace(col.DefaultValue) ? (" = " + col.GetDefautlValueStringCS() + ";") : "");
+
+        if (String.IsNullOrWhiteSpace(defaultValueStr))
+            if (propType.ToLower() == "string" && !isNullable)
+                defaultValueStr = " = string.Empty;";
 
         return string.Join(" ", "public", propType, propName, "{ get; set; }") + defaultValueStr;
     }

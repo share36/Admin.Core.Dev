@@ -9,9 +9,13 @@ using ZhonTai.Admin.Core.Repositories;
 
 namespace @(gen.Namespace).Repositories.@(entityNamePC)
 {
+    /// <summary>
+    /// @gen.BusName @("仓储类")
+    /// </summary>
+    /// <remarks>@(gen.Comment)</remarks>
     public class @(entityNamePC)Repository : RepositoryBase<@(entityNamePC)Entity>, I@(entityNamePC)Repository
     {
-        public @(entityNamePC)Repository(UnitOfWorkManagerCloud muowm) : base("@(gen.DbKey)", muowm)
+        public @(entityNamePC)Repository(UnitOfWorkManagerCloud muowm) : base(/*"@(gen.DbKey)"*/ Consts.DbKeys.AppDb, muowm)
         {
         }
     }

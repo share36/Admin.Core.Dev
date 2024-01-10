@@ -20,8 +20,6 @@ using ZhonTai.Admin.Core.Entities;
 @:using @(ns);    
 }
 
-#pragma warning disable CS8632
-
 namespace @(gen.Namespace).Domain.@(entityNamePc)
 {
     /// <summary>
@@ -49,12 +47,15 @@ namespace @(gen.Namespace).Domain.@(entityNamePc)
         @:/// <remarks>@(col.Comment)</remarks>
         @:@col.FreeSqlColumnAttribute()
         @:@col.PropCs()
-
         }
 
         if (col.IsIncludeColumn())
         {
-
+            
+        @:/// <summary>
+        @:/// @(col.Title) @(col.IncludeMode==0?"对象":"列表")
+        @:/// </summary>
+        @:/// <remarks>@(col.Comment)</remarks>
         @:@col.FreeSqlNavigaetAttribute()
         @:@col.PropIncludeCs()
         
@@ -65,6 +66,4 @@ namespace @(gen.Namespace).Domain.@(entityNamePc)
     }
 
 }
-
-#pragma warning restore CS8632
 

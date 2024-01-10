@@ -13,36 +13,91 @@ using ZhonTai.Admin.Core.Entities;
 {
 @:using @(ns);    
 }
+@foreach(var col in gen.Fields.Where(w=>!String.IsNullOrWhiteSpace(w.IncludeEntity))){
+@:using @(gen.Namespace).Services.@(col.IncludeEntity.Replace("Entity","").NamingPascalCase()).Dto;
+}
 using @(gen.Namespace).Services.@(entityNamePc).Dto;
 
 namespace @(gen.Namespace).Services.@(entityNamePc)
 {
-    public interface I@(entityNamePc)Service
+    /// <summary>
+    /// @gen.BusName @("服务接口")
+    /// </summary>
+    /// <remarks>@(gen.Comment)</remarks>
+    public partial interface I@(entityNamePc)Service
     {
+       
+        /// <summary>
+        /// 查询
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         Task<@(entityNamePc)GetOutput> GetAsync(long id);
-        
+
+        /// <summary>
+        /// 分页查询
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>        
         Task<PageOutput<@(entityNamePc)GetPageOutput>> GetPageAsync(PageInput<@(entityNamePc)GetPageInput> input);
-        
-        Task<long> AddAsync(@(entityNamePc)AddInput input);
 
-        Task UpdateAsync(@(entityNamePc)UpdateInput input);
+@if(gen.GenAdd){ 
+@:        /// <summary>
+@:        /// 新增
+@:        /// </summary>
+@:        /// <param name="input"></param>
+@:        /// <returns></returns>
+@:        Task<long> AddAsync(@(entityNamePc)AddInput input);
+}
 
-        Task<bool> DeleteAsync(long id);
+@if(gen.GenUpdate){
+@:        /// <summary>
+@:        /// 更新
+@:        /// </summary>
+@:        /// <param name="input"></param>
+@:        /// <returns></returns>
+@:        Task UpdateAsync(@(entityNamePc)UpdateInput input);
+}
+
+@if(gen.GenDelete){
+@:        /// <summary>
+@:        /// 删除
+@:        /// </summary>
+@:        /// <param name="input"></param>
+@:        /// <returns></returns>
+@:        Task DeleteAsync(long id);
+}
     @if(gen.GenGetList){
-        @:
+        @:/// <summary>
+        @:/// 列表查询
+        @:/// </summary>
+        @:/// <param name="input"></param>
+        @:/// <returns></returns>
         @:Task<IEnumerable<@(entityNamePc)GetListOutput>> GetListAsync(@(entityNamePc)GetListInput input);
     }
     @if(gen.GenBatchDelete){
-        @:
-        @:Task<bool> BatchDeleteAsync(long[] ids);
+        @:/// <summary>
+        @:/// 批量删除
+        @:/// </summary>
+        @:/// <param name="ids"></param>
+        @:/// <returns></returns>
+        @:Task BatchDeleteAsync(long[] ids);
     }
     @if(gen.GenSoftDelete){
-        @:
-        @:Task<bool> SoftDeleteAsync(long id);
+        @:/// <summary>
+        @:/// 软删除
+        @:/// </summary>
+        @:/// <param name="id"></param>
+        @:/// <returns></returns>
+        @:Task SoftDeleteAsync(long id);
     }
     @if(gen.GenBatchSoftDelete){
-        @:
-        @:Task<bool> BatchSoftDeleteAsync(long[] ids);
+        @:/// <summary>
+        @:/// 批量软删除
+        @:/// </summary>
+        @:/// <param name="ids"></param>
+        @:/// <returns></returns>
+        @:Task BatchSoftDeleteAsync(long[] ids);
     }
     }
 }
@@ -62,11 +117,14 @@ namespace @(gen.Namespace).Services.@(entityNamePc).Dto
             {
         @:/// <summary>@(col.Title)</summary>
         @:@col.PropCs()
+        if(!String.IsNullOrWhiteSpace(col.DictTypeCode)){
+        @:public string? @(col.ColumnName.NamingPascalCase())DictName { get; set; }
+        }
             }
 
             if (col.IsIncludeColumn())
             {
-        @:@col.PropIncludeCs()
+        @:@col.PropIncludeCs().Replace("Entity", "GetOutput")
             }
         }
     }
@@ -100,7 +158,7 @@ namespace @(gen.Namespace).Services.@(entityNamePc).Dto
             if(!string.IsNullOrWhiteSpace(col.DictTypeCode))
             {
         @:/// <summary>@(col.Title)名称</summary>
-        @:public string? @(col.ColumnName)DictName { get; set; }
+        @:public string? @(col.ColumnName.NamingPascalCase())DictName { get; set; }
             }
         }
     }
@@ -133,12 +191,15 @@ namespace @(gen.Namespace).Services.@(entityNamePc).Dto
 @:        @col.PropCs()                                                    
              }
         }
+    @if(gen.Fields.Any(a=>a.EncryptTrans)){
+          @:public string? EncryptKey { get; set; }
+    }
 @:    }
 }
 
-
-    /// <summary>@(gen.BusName)更新数据输入</summary>
-    public partial class @(entityNamePc)UpdateInput {
+@if(gen.GenUpdate){
+@:    /// <summary>@(gen.BusName)更新数据输入</summary>
+@:    public partial class @(entityNamePc)UpdateInput {
     @if (!String.IsNullOrWhiteSpace(gen.BaseEntity))
     {
         @:public long Id { get; set; }
@@ -155,7 +216,11 @@ namespace @(gen.Namespace).Services.@(entityNamePc).Dto
         @:@col.PropCs()
         }
     }
+    @if(gen.Fields.Any(a=>a.EncryptTrans)){
+        @:public string? EncryptKey { get; set; }
     }
+@:    }
+}
 
 @if(gen.GenGetList){
     @:/// <summary>@(gen.BusName)列表查询结果输出</summary>
@@ -178,13 +243,13 @@ namespace @(gen.Namespace).Services.@(entityNamePc).Dto
 
             if (col.IsIncludeColumn())
             {
-        @:@col.PropIncludeCs()
+        @:@col.PropIncludeCs().Replace("Entity", "GetOutput")
             }
 
             if (!string.IsNullOrWhiteSpace(col.DictTypeCode))
             {
         @:/// <summary>@(col.Title)名称</summary>
-        @:public string? @(col.ColumnName)DictName { get; set; }
+        @:public string? @(col.ColumnName.NamingPascalCase())DictName { get; set; }
             }
         }
     @:}

@@ -125,6 +125,11 @@ public partial class CodeGenFieldEntity : EntityBase
     public Boolean IsUnique { get; set; }
 
     /// <summary>
+    /// 加密传输
+    /// </summary>
+    public Boolean EncryptTrans { get; set; }
+
+    /// <summary>
     /// 查询方式
     /// </summary>
     [Column(StringLength = 16)]
