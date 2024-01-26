@@ -31,6 +31,10 @@ namespace ZhonTai.Admin.Core.Configs
         public string Namespace { get; set; } = "";
         public string ApiAreaName { get; set; } = "";
         public string Usings { get; set; } = "";
+        /// <summary>
+        /// 菜单后缀
+        /// </summary>
+        public string MenuAfterText { get; set; } = "管理";
     }
 
     public class TemplateOption

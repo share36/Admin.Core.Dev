@@ -26,6 +26,7 @@ using ZhonTai.Admin.Core.Dto;
 using ZhonTai.Admin.Services;
 using ZhonTai.DynamicApi;
 using ZhonTai.DynamicApi.Attributes;
+using ZhonTai.Admin.Domain.Dict;
 
 using @(gen.Namespace).Domain.@(entityNamePc);
 using @(gen.Namespace).Services.@(entityNamePc).Dto;
@@ -125,7 +126,7 @@ namespace @(gen.Namespace).Services.@(entityNamePc)
 
                             var usedDicCols = gen.Fields.Where(w => !string.IsNullOrWhiteSpace(w.DictTypeCode));
 
-            @:var dictRepo = LazyGetRequiredService<ZhonTai.Admin.Domain.Dict.IDictRepository>();
+            @:var dictRepo = LazyGetRequiredService<IDictRepository>();
             @:var dictList = await dictRepo.Where(w => new string[] { @(string.Concat("\"" , string.Join("\", \"", usedDicCols.Select(s=>s.DictTypeCode)), "\"")) }
             @:    .Contains(w.DictType.Code)).ToListAsync();
 
@@ -216,7 +217,7 @@ namespace @(gen.Namespace).Services.@(entityNamePc)
 
                             var usedDicCols = gen.Fields.Where(w => !string.IsNullOrWhiteSpace(w.DictTypeCode));
 
-            @:var dictRepo = LazyGetRequiredService<ZhonTai.Admin.Domain.Dict.IDictRepository>();
+            @:var dictRepo = LazyGetRequiredService<IDictRepository>();
             @:var dictList = await dictRepo.Where(w => new string[] { @(string.Concat("\"" , string.Join("\", \"", usedDicCols.Select(s=>s.DictTypeCode)), "\"")) }
             @:    .Contains(w.DictType.Code)).ToListAsync();
 

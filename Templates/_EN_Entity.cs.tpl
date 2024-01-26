@@ -13,6 +13,7 @@
     var commonFields = new String[] { "id", "OwnerId", "OwnerOrgId", "IsDeleted", "TenantId"
     , "CreatedUserId","CreatedUserName","CreatedTime", "ModifiedUserId","ModifiedUserName","ModifiedTime"};
 }
+using System;
 using FreeSql.DataAnnotations;
 using ZhonTai.Admin.Core.Entities;
 @foreach(var ns in gen.GetUsings())

@@ -9,6 +9,9 @@
 using System.ComponentModel.DataAnnotations;
 using ZhonTai.Admin.Core.Dto;
 using ZhonTai.Admin.Core.Entities;
+using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
 @foreach (var ns in gen.GetUsings())
 {
 @:using @(ns);    
