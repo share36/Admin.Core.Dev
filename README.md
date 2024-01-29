@@ -118,3 +118,7 @@ Api分区：AdminCore 的 Api Area
         //...{path: '/example',...}
   ]
   ```
+  
+  
+  gitee地址： 
+  [https://gitee.com/share36/Admin.Core.Dev.git](https://gitee.com/share36/Admin.Core.Dev.git)
