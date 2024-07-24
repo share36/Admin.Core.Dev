@@ -33,7 +33,7 @@ namespace @(gen.Namespace).Services.@(entityNamePc)
         /// <summary>
         /// 查询
         /// </summary>
-        /// <param name="input"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
         Task<@(entityNamePc)GetOutput> GetAsync(long id);
 
@@ -66,7 +66,7 @@ namespace @(gen.Namespace).Services.@(entityNamePc)
 @:        /// <summary>
 @:        /// 删除
 @:        /// </summary>
-@:        /// <param name="input"></param>
+@:        /// <param name="id"></param>
 @:        /// <returns></returns>
 @:        Task DeleteAsync(long id);
 }
@@ -111,6 +111,7 @@ namespace @(gen.Namespace).Services.@(entityNamePc).Dto
     public partial class @(entityNamePc)GetOutput {
         @if (!String.IsNullOrWhiteSpace(gen.BaseEntity))
         {
+        @:/// <summary></summary>
         @:public long Id { get; set; }
         }
         @foreach (var col in gen.Fields)
@@ -127,6 +128,7 @@ namespace @(gen.Namespace).Services.@(entityNamePc).Dto
 
             if (col.IsIncludeColumn())
             {
+        @:/// <summary></summary>
         @:@col.PropIncludeCs().Replace("Entity", "GetOutput")
             }
         }
@@ -136,11 +138,16 @@ namespace @(gen.Namespace).Services.@(entityNamePc).Dto
     public partial class @(entityNamePc)GetPageOutput {
         @if (!String.IsNullOrWhiteSpace(gen.BaseEntity))
         {
-
+        
+        @:/// <summary></summary>
         @:public long Id { get; set; }
+        @:/// <summary>创建时间</summary>
         @:public DateTime CreatedTime { get; set; }
-        @:public string CreatedUserName { get; set; }
-        @:public string ModifiedUserName { get; set; }
+        @:/// <summary>创建者用户名</summary>
+        @:public string CreatedUserName { get; set; } = string.Empty;
+        @:/// <summary>修改者用户名</summary>
+        @:public string ModifiedUserName { get; set; } = string.Empty;
+        @:/// <summary>修改时间</summary>
         @:public DateTime? ModifiedTime { get; set; }
 
         }
@@ -155,9 +162,9 @@ namespace @(gen.Namespace).Services.@(entityNamePc).Dto
 
             if (col.IsIncludeColumn())
             {
-        @:@col.PropIncludeCs()
+        @:/// <summary></summary>
+        @:@col.PropIncludeCs().Replace("Entity", "GetOutput")
             }
-
             if(!string.IsNullOrWhiteSpace(col.DictTypeCode))
             {
         @:/// <summary>@(col.Title)名称</summary>
@@ -195,6 +202,7 @@ namespace @(gen.Namespace).Services.@(entityNamePc).Dto
              }
         }
     @if(gen.Fields.Any(a=>a.EncryptTrans)){
+          @:/// <summary></summary>
           @:public string? EncryptKey { get; set; }
     }
 @:    }
@@ -205,6 +213,7 @@ namespace @(gen.Namespace).Services.@(entityNamePc).Dto
 @:    public partial class @(entityNamePc)UpdateInput {
     @if (!String.IsNullOrWhiteSpace(gen.BaseEntity))
     {
+        @:/// <summary></summary>
         @:public long Id { get; set; }
     }
     @foreach (var col in gen.Fields.Where(w => w.WhetherUpdate))
@@ -219,7 +228,8 @@ namespace @(gen.Namespace).Services.@(entityNamePc).Dto
         @:@col.PropCs()
         }
     }
-    @if(gen.Fields.Any(a=>a.EncryptTrans)){
+    @if(gen.Fields.Any(a=>a.EncryptTrans)){    
+        @:/// <summary>加解密密钥</summary>
         @:public string? EncryptKey { get; set; }
     }
 @:    }
@@ -230,10 +240,15 @@ namespace @(gen.Namespace).Services.@(entityNamePc).Dto
     @:public partial class @(entityNamePc)GetListOutput {
         @if (!String.IsNullOrWhiteSpace(gen.BaseEntity))
         {
+        @:/// <summary></summary>
         @:public long Id { get; set; }
+        @:/// <summary>创建时间</summary>
         @:public DateTime CreatedTime { get; set; }
-        @:public string CreatedUserName { get; set; }
-        @:public string ModifiedUserName { get; set; }
+        @:/// <summary>创建者用户名</summary>
+        @:public string CreatedUserName { get; set; } = string.Empty;
+        @:/// <summary>修改者用户名</summary>
+        @:public string ModifiedUserName { get; set; } = string.Empty;
+        @:/// <summary>修改时间</summary>
         @:public DateTime? ModifiedTime { get; set; }
         }
         @foreach(var col in gen.Fields.Where(w=>w.WhetherList))
@@ -246,6 +261,7 @@ namespace @(gen.Namespace).Services.@(entityNamePc).Dto
 
             if (col.IsIncludeColumn())
             {
+        @:/// <summary></summary>
         @:@col.PropIncludeCs().Replace("Entity", "GetOutput")
             }
 

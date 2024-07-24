@@ -185,7 +185,7 @@ public static class CodeGenFieldEntityExtension
     /// </summary>
     /// <param name="col"></param>
     /// <returns></returns>
-    public static string FreeSqlNavigaetAttribute(this CodeGenFieldEntity col)
+    public static string FreeSqlNavigateAttribute(this CodeGenFieldEntity col)
     {
         if (col == null) return string.Empty;
         if (col.IncludeMode == 1)

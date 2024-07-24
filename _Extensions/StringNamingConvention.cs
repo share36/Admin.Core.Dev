@@ -1,6 +1,9 @@
 ﻿using System.Text.RegularExpressions;
 using ZhonTai.DynamicApi.Enums;
 
+/// <summary>
+/// 
+/// </summary>
 public static class NamingConvention
 {
 
@@ -63,11 +66,22 @@ public static class NamingConvention
     {
         return _Sp(NamingPascalCase(name), ".");
     }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="separator"></param>
+    /// <returns></returns>
     public static string NamingCustom(this string name, string separator)
     {
         return _Sp(NamingPascalCase(name), separator);
     }
-
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="convention"></param>
+    /// <returns></returns>
     public static string Naming(this string name, NamingConventionEnum convention)
     {
         return convention switch

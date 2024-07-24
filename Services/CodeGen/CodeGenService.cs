@@ -23,7 +23,7 @@ using ZhonTai.DynamicApi;
 using ZhonTai.DynamicApi.Attributes;
 
 namespace ZhonTai.Admin.Services.CodeGen;
-
+#pragma warning disable 8604
 /// <summary>
 /// 代码生成服务
 /// </summary>

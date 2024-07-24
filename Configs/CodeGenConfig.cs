@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+#pragma warning disable CS1591, CS8618
+
 namespace ZhonTai.Admin.Core.Configs
 {
     public class CodeGenConfig
@@ -81,3 +83,5 @@ namespace ZhonTai.Admin.Core.Configs
         public string OutTo { get; set; } = "";
     }
 }
+
+#pragma warning restore

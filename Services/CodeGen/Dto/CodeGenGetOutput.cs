@@ -1,8 +1,10 @@
 ﻿using ZhonTai.Admin.Domain.CodeGen;
 
 namespace ZhonTai.Admin.Services.CodeGen.Dto;
-
-
+#pragma warning disable CS1591, CS8618
+/// <summary>
+/// 
+/// </summary>
 public class CodeGenGetOutput
 {
 
@@ -138,11 +140,17 @@ public class CodeGenGetOutput
     /// 生成批量软删除服务
     /// </summary>
     public Boolean GenBatchSoftDelete { get; set; }
-
+    /// <summary>
+    /// 字段列表
+    /// </summary>
     public IEnumerable<CodeGenFieldGetOutput>? Fields { get; set; }
 }
-
+/// <summary>
+/// 
+/// </summary>
 public class CodeGenUpdateInput : CodeGenGetOutput
 {
 
 }
+
+#pragma warning restore

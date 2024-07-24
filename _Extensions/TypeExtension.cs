@@ -7,8 +7,19 @@ using System.Threading.Tasks;
 
 namespace CodeService._Extensions
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class TypeExtension
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="type"></param>
+        /// <param name="obj"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static T? GetPropertyValue<T>(this Type type, Object obj, String name)
         {
             var pi = type.GetProperty(name);
@@ -24,8 +35,19 @@ namespace CodeService._Extensions
             return default;
         }
     }
+    /// <summary>
+    /// 
+    /// </summary>
     public static class ICollectionExtension
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection"></param>
+        /// <param name="exp"></param>
+        /// <param name="val"></param>
+        /// <returns></returns>
         public static ICollection<T> AddIf<T>(this ICollection<T> collection, Boolean exp, T val)
         {
             if (exp)
@@ -33,7 +55,14 @@ namespace CodeService._Extensions
 
             return collection;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection"></param>
+        /// <param name="exp"></param>
+        /// <param name="vals"></param>
+        /// <returns></returns>
         public static ICollection<T> AddIf<T>(this ICollection<T> collection, Boolean exp, T[] vals)
         {
             if(exp)

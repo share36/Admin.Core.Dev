@@ -3,10 +3,18 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ZhonTai.Admin.Services.CodeGen.Dto;
 
+/// <summary>
+/// 
+/// </summary>
 public class CodeGenFieldGetOutput
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public long Id { get; set; }
-
+    /// <summary>
+    /// 
+    /// </summary>
     public long CodeGenId { get; set; }
 
     /// <summary>

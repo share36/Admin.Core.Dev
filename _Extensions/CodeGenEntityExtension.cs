@@ -32,7 +32,8 @@ public static class CodeGenEntityExtension
             .ConcatIfNotNull(config.Fields?
                 .Where(w => !String.IsNullOrWhiteSpace(w.IncludeEntity))
                 .Select(s => s.IncludeEntity?.Split('.').Last().PadEndIfNot("Entity"))
-                .Select(s => "" + Type.GetType(s)?.Namespace)
+                .Where(w => !String.IsNullOrWhiteSpace(w))
+                .Select(s => "" + Type.GetType(s!)?.Namespace)
                 .Where(w => !String.IsNullOrWhiteSpace(w))
             )
             .ConcatIfNotNull(config.Fields?

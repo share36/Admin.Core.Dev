@@ -1,4 +1,7 @@
-﻿public static class StringExtension
+﻿/// <summary>
+/// 
+/// </summary>
+public static class StringExtension
 {
     /// <summary>
     /// 如果不是以指定的字符串结尾，则加入
@@ -13,6 +16,13 @@
             return str + endWith;
         return str;
     }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="str"></param>
+    /// <param name="contion"></param>
+    /// <param name="endWith"></param>
+    /// <returns></returns>
     public static string PadEndIfNot(this string str,bool contion,string endWith)
     {
         if(contion)

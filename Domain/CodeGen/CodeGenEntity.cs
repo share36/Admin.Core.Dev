@@ -5,7 +5,11 @@ using ZhonTai.Admin.Core.Entities;
 
 namespace ZhonTai.Admin.Domain.CodeGen;
 
+#pragma warning disable CS8618
 
+/// <summary>
+/// 
+/// </summary>
 [Table(Name = "cg_config")]
 public class CodeGenEntity : EntityBase
 {
@@ -157,6 +161,10 @@ public class CodeGenEntity : EntityBase
     /// 生成批量软删除服务
     /// </summary>
     public Boolean GenBatchSoftDelete { get; set; }
-
+    /// <summary>
+    /// 字段列表
+    /// </summary>
     public IEnumerable<CodeGenFieldEntity>? Fields { get; set; }
 }
+
+#pragma warning restore

@@ -22,6 +22,9 @@ namespace ZhonTai.Admin.Services.DictionaryTree.Dto
     /// </summary>
     public class DictionaryTreeOutput
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public long Id { get; set; }
         /// <summary>
         /// 字典名称
@@ -32,7 +35,9 @@ namespace ZhonTai.Admin.Services.DictionaryTree.Dto
         /// 字典编码
         /// </summary>
         public string Code { get; set; } = String.Empty;
-
+        /// <summary>
+        /// 
+        /// </summary>
         public IEnumerable<DictionaryTreeOutput>? Childrens { get; set; }
     }
 }

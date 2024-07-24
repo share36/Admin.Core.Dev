@@ -4,6 +4,8 @@ using ZhonTai.Admin.Core.Entities;
 
 namespace ZhonTai.Admin.Domain.CodeGen;
 
+#pragma warning disable CS1591, CS8618
+
 [Table(Name = "cg_config_field")]
 public partial class CodeGenFieldEntity : EntityBase
 {
@@ -188,3 +190,5 @@ public partial class CodeGenFieldEntity : EntityBase
     [Column(StringLength = 64)]
     public string? FrontendRuleTrigger { get; set; }
 }
+
+#pragma warning restore

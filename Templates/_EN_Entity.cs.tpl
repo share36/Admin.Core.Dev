@@ -21,15 +21,15 @@ using ZhonTai.Admin.Core.Entities;
 @:using @(ns);    
 }
 
-namespace @(gen.Namespace).Domain.@(entityNamePc)
+namespace @(gen.Namespace).Domain.@(entityNamePc);
+
+/// <summary>
+/// @gen.BusName @("实体类")
+/// </summary>
+/// <remarks>@(gen.Comment)</remarks>
+@(gen.GetTableIndexAttributes())
+public partial class @(entityClassName)
 {
-    /// <summary>
-    /// @gen.BusName @("实体类")
-    /// </summary>
-    /// <remarks>@(gen.Comment)</remarks>
-    @(gen.GetTableIndexAttributes())
-    public partial class @(entityClassName)
-    {
 @if (gen.Fields != null)
 {
     foreach (var col in gen.Fields)
@@ -42,29 +42,26 @@ namespace @(gen.Namespace).Domain.@(entityNamePc)
         if(!col.IsIgnoreColumn())
         {
 
-        @:/// <summary>
-        @:/// @(col.Title)
-        @:/// </summary>
-        @:/// <remarks>@(col.Comment)</remarks>
-        @:@col.FreeSqlColumnAttribute()
-        @:@col.PropCs()
+    @:/// <summary>
+    @:/// @(col.Title)
+    @:/// </summary>
+    @:/// <remarks>@(col.Comment)</remarks>
+    @:@col.FreeSqlColumnAttribute()
+    @:@col.PropCs()
         }
 
         if (col.IsIncludeColumn())
         {
             
-        @:/// <summary>
-        @:/// @(col.Title) @(col.IncludeMode==0?"对象":"列表")
-        @:/// </summary>
-        @:/// <remarks>@(col.Comment)</remarks>
-        @:@col.FreeSqlNavigaetAttribute()
-        @:@col.PropIncludeCs()
+    @:/// <summary>
+    @:/// @(col.Title) @(col.IncludeMode==0?"对象":"列表")
+    @:/// </summary>
+    @:/// <remarks>@(col.Comment)</remarks>
+    @:@col.FreeSqlNavigateAttribute()
+    @:@col.PropIncludeCs()
         
         }
     }
 
 }
-    }
-
 }
-

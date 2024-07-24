@@ -9,7 +9,7 @@ using System.Runtime.Loader;
 using System.Runtime.Serialization;
 
 namespace ZhonTai.Admin.Services.CodeGen;
-
+#pragma warning disable 8603
 internal class Compiler
 {
     /// <summary>
@@ -21,7 +21,7 @@ internal class Compiler
         /// 获取入口程序集
         /// </summary>
         /// <returns></returns>
-        internal static Assembly GetEntryAssembly() => Assembly.GetEntryAssembly();
+        internal static Assembly? GetEntryAssembly() => Assembly.GetEntryAssembly();
 
         /// <summary>
         /// 根据程序集名称获取运行时程序集
