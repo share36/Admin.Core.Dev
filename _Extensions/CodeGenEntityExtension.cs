@@ -1,4 +1,14 @@
-﻿using CodeService._Extensions;
+﻿/*
+Author       : SirHQ
+Create Data  : 2023-01-18
+Description  : 中台Admin代码生成扩展
+Project Name : ZhonTai.Admin.Dev
+
+github : https://github.com/share36/Admin.Core.Dev
+gitee  : https://gitee.com/share36/Admin.Core.Dev
+*/
+
+using CodeService._Extensions;
 using System.Reflection.Emit;
 using ZhonTai.Admin.Domain.CodeGen;
 

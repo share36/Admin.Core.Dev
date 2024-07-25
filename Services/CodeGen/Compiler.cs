@@ -1,4 +1,14 @@
-﻿using FreeSql;
+﻿/*
+Author       : SirHQ
+Create Data  : 2023-01-09
+Description  : 中台Admin代码生成扩展
+Project Name : ZhonTai.Admin.Dev
+
+github : https://github.com/share36/Admin.Core.Dev
+gitee  : https://gitee.com/share36/Admin.Core.Dev
+*/
+
+using FreeSql;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using System.Collections;

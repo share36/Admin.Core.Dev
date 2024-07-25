@@ -1,4 +1,13 @@
 ﻿
+github 仓库：[https://github.com/share36/Admin.Core.Dev](https://github.com/share36/Admin.Core.Dev)
+
+gitee 仓库：[https://gitee.com/share36/Admin.Core.Dev](https://gitee.com/share36/Admin.Core.Dev)
+
+前端仓库： [https://github.com/share36/admin.ui.plus.dev](https://github.com/share36/admin.ui.plus.dev)
+
+---
+
+
 基于 Admin.Core 和 admin.ui.plus 的代码生成扩展程序
 
 可生成完整的 Entity、Repository、Service 后台代码
@@ -118,7 +127,3 @@ Api分区：AdminCore 的 Api Area
         //...{path: '/example',...}
   ]
   ```
-  
-  
-  gitee地址： 
-  [https://gitee.com/share36/Admin.Core.Dev.git](https://gitee.com/share36/Admin.Core.Dev.git)

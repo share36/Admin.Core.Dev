@@ -1,4 +1,14 @@
-﻿namespace ZhonTai.Admin.Services.DictionaryTree
+﻿/*
+Author       : SirHQ
+Create Data  : 2023-01-09
+Description  : 中台Admin代码生成扩展
+Project Name : ZhonTai.Admin.Dev
+
+github : https://github.com/share36/Admin.Core.Dev
+gitee  : https://gitee.com/share36/Admin.Core.Dev
+*/
+
+namespace ZhonTai.Admin.Services.DictionaryTree
 {
     /// <summary>
     /// 数据字典树服务

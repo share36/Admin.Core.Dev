@@ -1,4 +1,14 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿/*
+Author       : SirHQ
+Create Data  : 2023-01-18
+Description  : 中台Admin代码生成扩展
+Project Name : ZhonTai.Admin.Dev
+
+github : https://github.com/share36/Admin.Core.Dev
+gitee  : https://gitee.com/share36/Admin.Core.Dev
+*/
+
+using Microsoft.AspNetCore.Http.HttpResults;
 using RazorEngine.Compilation.ImpromptuInterface.Dynamic;
 using RazorEngine.Compilation.ImpromptuInterface.Optimization;
 using StackExchange.Profiling.Internal;

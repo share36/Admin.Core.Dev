@@ -1,4 +1,14 @@
-﻿using MapsterMapper;
+﻿/*
+Author       : SirHQ
+Create Data  : 2023-01-09
+Description  : 中台Admin代码生成扩展
+Project Name : ZhonTai.Admin.Dev
+
+github : https://github.com/share36/Admin.Core.Dev
+gitee  : https://gitee.com/share36/Admin.Core.Dev
+*/
+
+using MapsterMapper;
 using ZhonTai.Admin.Core.Consts;
 using ZhonTai.Admin.Domain.Dict;
 using ZhonTai.Admin.Domain.DictType;

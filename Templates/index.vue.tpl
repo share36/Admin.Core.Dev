@@ -118,7 +118,7 @@
     string attributes, inner;
 }
 <template>
-  <div style="padding: 0px 8px">
+  <div style="padding: 0px 8px" generation-tag="This code is generated using automated code generation tool [Admin.ZhonTai.Dev]:https://github.com/share36/Admin.Core.Dev.https://gitee.com/share36/Admin.Core.Dev.">
     <!--查询-->
     <el-card shadow="never" :body-style="{ paddingBottom: '0' }" style="margin-top: 8px">
       <el-form inline :model="state.filterModel">

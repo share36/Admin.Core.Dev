@@ -1,4 +1,14 @@
-﻿using CodeService._Extensions;
+﻿/*
+Author       : SirHQ
+Create Data  : 2023-01-16
+Description  : 中台Admin代码生成扩展
+Project Name : ZhonTai.Admin.Dev
+
+github : https://github.com/share36/Admin.Core.Dev
+gitee  : https://gitee.com/share36/Admin.Core.Dev
+*/
+
+using CodeService._Extensions;
 using FreeSql;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -503,7 +513,7 @@ public partial class CodeGenService : BaseService, ICodeGenService, IDynamicApi
     [AdminTransaction]
     public async Task GenMenu(long id)
     {
-        var gen = _codeGenRepository.Get(id);
+        var gen = await _codeGenRepository.GetAsync(id);
         if (gen == null)
             throw ResultOutput.Exception("未找到生成配置。");
 
@@ -626,7 +636,7 @@ public partial class CodeGenService : BaseService, ICodeGenService, IDynamicApi
             {
                 if (!apisRel.Any(a => a.PermissionId == permNew.Id && a.ApiId == api.Id))
                 {
-                    apiPermRelRepl.Insert(new PermissionApiEntity { PermissionId = permNew.Id, ApiId = api.Id });
+                    await apiPermRelRepl.InsertAsync(new PermissionApiEntity { PermissionId = permNew.Id, ApiId = api.Id });
                 }
             }
         }

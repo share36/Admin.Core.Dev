@@ -4,11 +4,11 @@
   //生成的默认参数项
   "defaultOption": {
     "authorName": "SirHQ",
-    "backendOut": "D:\\Devs\\VS\\Testing\\Admin\\Admin.Core\\src\\business\\H.Drive",
-    "frontendOut": "D:\\Devs\\VS\\Testing\\Admin\\admin.ui.plus\\src",
-    "namespace": "H.Drive",
+    "backendOut": "D:\\CodeGenOut",
+    "frontendOut": "D:\\CodeGenOut",
+    "namespace": "App.CodeGen",
     // Api 分组名称
-    "apiAreaName": "drive",
+    "apiAreaName": "app",
     // 默认导入命名空间，多个之间用;分隔
     "usings": "",
     //菜单后缀：列表/管理
